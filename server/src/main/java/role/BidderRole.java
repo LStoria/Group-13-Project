@@ -1,3 +1,5 @@
+package role;
+
 public class BidderRole implements Role {
 
     @Override

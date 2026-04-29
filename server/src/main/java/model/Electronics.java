@@ -1,3 +1,5 @@
+package model;
+
 public class Electronics extends Item {
 
     private String brand;

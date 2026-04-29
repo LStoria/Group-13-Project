@@ -1,3 +1,5 @@
+package role;
+
 public class SellerRole implements Role {
 
     @Override
