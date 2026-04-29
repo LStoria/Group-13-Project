@@ -1,4 +1,4 @@
-package model;
+package role;
 
 public interface Role {
 
