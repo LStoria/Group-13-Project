@@ -1,3 +1,5 @@
+package model;
+
 public class BidTransaction extends Entity {
 
     private User bidder;
