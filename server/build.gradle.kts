@@ -19,3 +19,12 @@ application {
     // Trỏ chính xác đến class chứa hàm main của bạn
     mainClass.set("network.AuctionServer") 
 }
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<JavaExec> {
+    // Dòng này giúp các lệnh System.out.println in được tiếng Việt
+    jvmArgs("-Dfile.encoding=UTF-8")
+}

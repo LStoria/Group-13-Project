@@ -21,3 +21,12 @@ javafx {
 application {
     mainClass.set("view.MainApp")
 }
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<JavaExec> {
+    // Dòng này giúp các lệnh System.out.println in được tiếng Việt
+    jvmArgs("-Dfile.encoding=UTF-8")
+}
