@@ -22,25 +22,40 @@ public class AuctionManager {
             JsonObject obj = new JsonObject();
             obj.addProperty("id", item.id);
             obj.addProperty("name", item.name);
-            obj.addProperty("price", item.price);
-            obj.addProperty("lastBidder", item.lastBidder);
+            obj.addProperty("price", item.currentPrice);
+            obj.addProperty("winner", item.winner);
             array.add(obj);
         }
         return array.toString();
     }
 
-    // Lớp nội bộ để mô tả sản phẩm
-    static class Item {
-        int id;
-        String name;
-        double price;
-        String lastBidder;
+    // Hàm cập nhật giá đấu giá cho một sản phẩm
+    public static boolean updateBid(int itemId, double bidAmount, String username) {
+        for (Item item : items) {
+            if (item.id == itemId) {
+                if (bidAmount > item.currentPrice) {
+                    item.currentPrice = bidAmount;
+                    item.winner = username;
+                    return true;
+                }
+                return false;
+            }
+        }
+        return false; // Không tìm thấy sản phẩm
+    }
 
-        Item(int id, String name, double price, String bidder) {
+    // Lớp nội bộ để mô tả sản phẩm
+    public static class Item {
+        public int id;
+        public String name;
+        public double currentPrice;
+        public String winner;
+
+        public Item(int id, String name, double price, String winner) {
             this.id = id;
             this.name = name;
-            this.price = price;
-            this.lastBidder = bidder;
+            this.currentPrice = price;
+            this.winner = winner;
         }
     }
 }

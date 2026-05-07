@@ -68,14 +68,18 @@ public class ClientHandler implements Runnable {
                 break;
                 
             case "BID":
-                // Ví dụ: Nhận lệnh đặt giá
-                // double amount = request.get("amount").getAsDouble();
-                
-                // Trả về cho người đặt giá biết là đã nhận lệnh
-                out.println("{\"status\":\"SUCCESS\", \"message\":\"Hệ thống đã ghi nhận giá trị đặt!\"}");
-                
-                // GIẢ LẬP BROADCAST: Thông báo cho toàn bộ phòng biết có người vừa đặt giá!
-                // AuctionServer.broadcast("{\"action\":\"NEW_BID\", \"message\":\"Có người vừa đặt mức giá mới!\"}");
+                // Trong hàm handleAction của ClientHandler.java
+                int itemId = request.get("itemId").getAsInt();
+                double bidAmount = request.get("amount").getAsDouble();
+                String username = request.get("user").getAsString();
+
+                if (AuctionManager.updateBid(itemId, bidAmount, username)) {
+                    // Thông báo cho TẤT CẢ mọi người về mức giá mới
+                    AuctionServer.broadcast("{\"action\":\"UPDATE_PRICE\", \"itemId\":" + itemId + ", \"price\":" + bidAmount + ", \"winner\":\"" + username + "\"}");
+                    out.println("{\"status\":\"SUCCESS\", \"message\":\"Đặt giá thành công!\"}");
+                } else {
+                    out.println("{\"status\":\"ERROR\", \"message\":\"Giá đặt phải cao hơn giá hiện tại hoặc sản phẩm không tồn tại!\"}");
+                }
                 break;
 
             case "VIEW_ITEMS":
