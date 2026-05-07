@@ -12,6 +12,7 @@ repositories {
 dependencies {
     // Tạm thời để trống. 
     // Sau này bạn sẽ thêm các thư viện xử lý JSON hoặc kết nối Database vào đây
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 application {
