@@ -77,6 +77,11 @@ public class ClientHandler implements Runnable {
                 // GIẢ LẬP BROADCAST: Thông báo cho toàn bộ phòng biết có người vừa đặt giá!
                 // AuctionServer.broadcast("{\"action\":\"NEW_BID\", \"message\":\"Có người vừa đặt mức giá mới!\"}");
                 break;
+
+            case "VIEW_ITEMS":
+                String itemsJson = AuctionManager.getAllItemsJson();
+                out.println("{\"status\":\"OK\", \"data\":" + itemsJson + "}");
+                break;
                 
             default:
                 out.println("{\"status\":\"ERROR\", \"message\":\"Hành động không được hỗ trợ.\"}");
