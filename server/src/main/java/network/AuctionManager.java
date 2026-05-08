@@ -7,7 +7,7 @@ import java.util.List;
 
 public class AuctionManager {
     // Danh sách các sản phẩm đang đấu giá (giả lập)
-    private static List<Item> items = new ArrayList<>();
+    public static List<Item> items = new ArrayList<>();
 
     static {
         // Khởi tạo một vài món đồ mẫu

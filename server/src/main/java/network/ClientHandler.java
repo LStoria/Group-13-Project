@@ -68,7 +68,6 @@ public class ClientHandler implements Runnable {
                 break;
                 
             case "BID":
-                // Trong hàm handleAction của ClientHandler.java
                 int itemId = request.get("itemId").getAsInt();
                 double bidAmount = request.get("amount").getAsDouble();
                 String username = request.get("user").getAsString();
@@ -79,6 +78,24 @@ public class ClientHandler implements Runnable {
                     out.println("{\"status\":\"SUCCESS\", \"message\":\"Đặt giá thành công!\"}");
                 } else {
                     out.println("{\"status\":\"ERROR\", \"message\":\"Giá đặt phải cao hơn giá hiện tại hoặc sản phẩm không tồn tại!\"}");
+                }
+
+                // Đảm bảo tại một thời điểm chỉ 1 luồng được xử lý món hàng này
+                synchronized (AuctionManager.items) {
+                    for (AuctionManager.Item item : AuctionManager.items) {
+                        if (item.id == itemId) {
+                            if (bidAmount > item.currentPrice) {
+                                item.currentPrice = bidAmount;
+                                item.winner = username;
+
+                                // Thông báo giá mới cho tất cả mọi người
+                                AuctionServer.broadcast("{\"action\":\"UPDATE\", \"price\":" + bidAmount + "}");
+                            } else {
+                                sendMessage("{\"status\":\"FAILED\", \"reason\":\"Giá quá thấp!\"}");
+                            }
+                            break;
+                        }
+                    }
                 }
                 break;
 

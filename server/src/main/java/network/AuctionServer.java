@@ -6,12 +6,19 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AuctionServer {
     // Chọn một port trống, ví dụ 8080 hoặc 9999
-    private static final int PORT = 8080; 
+    private static final int PORT = 8080;
+
     // Tạo một danh sách an toàn (thread-safe) để lưu các Client đang kết nối
     public static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
+
+    // Server dành sẵn 50 "chỗ ngồi" cho 50 Client cùng lúc.
+    private static final ExecutorService threadPool = Executors.newFixedThreadPool(50);
+
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("=== Hệ thống Đấu giá Online ===");
@@ -29,7 +36,7 @@ public class AuctionServer {
                 // Ghi danh Client mới vào danh sách quản lý
                 clients.add(handler);
 
-                new Thread(handler).start();
+                threadPool.execute(handler);
             }
         } catch (IOException e) {
             System.err.println("❌ Lỗi khi khởi động server: " + e.getMessage());
@@ -38,9 +45,11 @@ public class AuctionServer {
     }
     // Để gửi tin nhắn cho TẤT CẢ mọi người trong phòng
     public static void broadcast(String message) {
-        // Duyệt qua danh sách và gửi tin nhắn đến từng Client
-        for (ClientHandler client : clients) {
-            client.sendMessage(message);
+        // Bắt buộc phải khóa danh sách lại khi duyệt vòng lặp
+        synchronized (clients) {
+            for (ClientHandler client : clients) {
+                client.sendMessage(message);
+            }
         }
     }
 }
