@@ -2,13 +2,13 @@ package repository;
 
 import model.User;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryUserRepository implements UserRepository {
 
-    private Map<String, User> users = new HashMap<>();
+    private Map<String, User> users = new ConcurrentHashMap<>();
 
     @Override
     public Optional<User> findByUsername(String username) {
