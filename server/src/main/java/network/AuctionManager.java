@@ -50,6 +50,7 @@ public class AuctionManager {
         public String name;
         public double currentPrice;
         public String winner;
+        public int timeLeft = 60; // 60 giây đếm ngược
 
         public Item(int id, String name, double price, String winner) {
             this.id = id;
@@ -57,5 +58,25 @@ public class AuctionManager {
             this.currentPrice = price;
             this.winner = winner;
         }
+    }
+
+    // Hàm đếm ngược:
+    public static void startTimer(int itemId) {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000); // Đợi 1 giây
+                    for (Item item : items) {
+                        if (item.id == itemId && item.timeLeft > 0) {
+                            item.timeLeft--;
+                            if (item.timeLeft == 0) {
+                                AuctionServer.broadcast("{\"action\":\"END\", \"item\":\"" + item.name + "\", \"winner\":\"" + item.winner + "\"}");
+                                return;
+                            }
+                        }
+                    }
+                } catch (InterruptedException e) { e.printStackTrace(); }
+            }
+        }).start();
     }
 }
