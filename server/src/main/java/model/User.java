@@ -24,6 +24,18 @@ public class User extends Entity {
                 .anyMatch(r -> r.getName().equals(roleName));
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
     public String getUsername() {
         return username;
     }
