@@ -1,0 +1,113 @@
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-background-color: #f4f6f8;
+    -fx-text-fill: #1f2933;
+}
+
+.page {
+    -fx-background-color: #f4f6f8;
+}
+
+.header {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #d9e2ec transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #102a43;
+}
+
+.subtitle {
+    -fx-text-fill: #52606d;
+}
+
+.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #243b53;
+}
+
+.panel {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d9e2ec;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.field-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #334e68;
+}
+
+.status-bar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d9e2ec transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.status-text {
+    -fx-text-fill: #334e68;
+}
+
+.primary-button {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 8 14 8 14;
+}
+
+.primary-button:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+.secondary-button {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #243b53;
+    -fx-background-radius: 5;
+    -fx-padding: 8 14 8 14;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #d1d5db;
+}
+
+.danger-button {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+    -fx-background-radius: 5;
+    -fx-padding: 8 14 8 14;
+}
+
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d9e2ec;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #edf2f7;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-font-weight: bold;
+}
+
+.text-field,
+.password-field,
+.combo-box-base {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #bcccdc;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 7 9 7 9;
+}
+
+.text-field:focused,
+.password-field:focused,
+.combo-box-base:focused {
+    -fx-border-color: #2563eb;
+}

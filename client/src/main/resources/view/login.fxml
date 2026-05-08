@@ -12,27 +12,35 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controller.LoginController"
       alignment="CENTER"
-      spacing="16">
+      spacing="18"
+      stylesheets="@../styles/app.css"
+      styleClass="page">
     <padding>
-        <Insets top="24" right="28" bottom="24" left="28"/>
+        <Insets top="30" right="34" bottom="30" left="34"/>
     </padding>
 
-    <Label text="Auction Client" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+    <VBox alignment="CENTER" spacing="6">
+        <Label text="Auction Client" styleClass="title"/>
+        <Label text="Dang nhap de tham gia phien dau gia" styleClass="subtitle"/>
+    </VBox>
 
-    <GridPane hgap="10" vgap="10">
-        <Label text="Host" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="hostField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <GridPane hgap="12" vgap="12" maxWidth="360" styleClass="panel">
+        <padding>
+            <Insets top="18" right="18" bottom="18" left="18"/>
+        </padding>
+        <Label text="Host" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="hostField" prefWidth="220" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="Port" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <Label text="Port" styleClass="field-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
         <TextField fx:id="portField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="Username" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Label text="Username" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
         <TextField fx:id="usernameField" promptText="Nhap username" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="Password" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <Label text="Password" styleClass="field-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
         <PasswordField fx:id="passwordField" promptText="Co the bo trong" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
     </GridPane>
 
-    <Button fx:id="loginButton" text="Dang nhap" onAction="#handleLogin" maxWidth="180"/>
-    <Label fx:id="statusLabel" text="Nhap thong tin de ket noi server." wrapText="true"/>
+    <Button fx:id="loginButton" text="Dang nhap" onAction="#handleLogin" minWidth="180" styleClass="primary-button"/>
+    <Label fx:id="statusLabel" text="Nhap thong tin de ket noi server." wrapText="true" styleClass="status-text"/>
 </VBox>

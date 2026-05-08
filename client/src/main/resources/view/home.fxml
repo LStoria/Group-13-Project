@@ -12,48 +12,56 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controller.HomeController">
+            fx:controller="controller.HomeController"
+            stylesheets="@../styles/app.css"
+            styleClass="page">
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="12">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="header">
             <padding>
                 <Insets top="12" right="14" bottom="12" left="14"/>
             </padding>
-            <Label text="Auction Room" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-            <Label fx:id="usernameLabel"/>
-            <Button text="Tai lai" onAction="#refreshItems"/>
-            <Button text="Dang xuat" onAction="#handleLogout"/>
+            <Label text="Auction Room" styleClass="title"/>
+            <Label fx:id="usernameLabel" styleClass="subtitle"/>
+            <Button text="Tai lai" onAction="#refreshItems" styleClass="secondary-button"/>
+            <Button text="Dang xuat" onAction="#handleLogout" styleClass="danger-button"/>
         </HBox>
     </top>
 
     <center>
-        <TableView fx:id="itemTable">
-            <columns>
-                <TableColumn fx:id="idColumn" text="ID" prefWidth="70"/>
-                <TableColumn fx:id="nameColumn" text="San pham" prefWidth="280"/>
-                <TableColumn fx:id="priceColumn" text="Gia hien tai" prefWidth="160"/>
-                <TableColumn fx:id="winnerColumn" text="Nguoi dan gia" prefWidth="180"/>
-            </columns>
-        </TableView>
-    </center>
-
-    <right>
-        <VBox spacing="12" prefWidth="240">
+        <VBox spacing="10">
             <padding>
                 <Insets top="14" right="14" bottom="14" left="14"/>
             </padding>
-            <Label text="Dat gia" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-            <Label text="Chon mot san pham trong bang, nhap gia cao hon gia hien tai." wrapText="true"/>
+            <Label text="Danh sach san pham" styleClass="section-title"/>
+            <TableView fx:id="itemTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="70"/>
+                    <TableColumn fx:id="nameColumn" text="San pham" prefWidth="300"/>
+                    <TableColumn fx:id="priceColumn" text="Gia hien tai" prefWidth="160"/>
+                    <TableColumn fx:id="winnerColumn" text="Nguoi dan gia" prefWidth="190"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <right>
+        <VBox spacing="12" prefWidth="260" styleClass="panel">
+            <padding>
+                <Insets top="14" right="14" bottom="14" left="14"/>
+            </padding>
+            <Label text="Dat gia" styleClass="section-title"/>
+            <Label text="Chon mot san pham trong bang, nhap gia cao hon gia hien tai." wrapText="true" styleClass="subtitle"/>
             <TextField fx:id="bidAmountField" promptText="Gia moi"/>
-            <Button text="Dat gia" onAction="#handleBid" maxWidth="Infinity"/>
+            <Button text="Dat gia" onAction="#handleBid" maxWidth="Infinity" styleClass="primary-button"/>
         </VBox>
     </right>
 
     <bottom>
-        <HBox alignment="CENTER_LEFT">
+        <HBox alignment="CENTER_LEFT" styleClass="status-bar">
             <padding>
                 <Insets top="10" right="14" bottom="10" left="14"/>
             </padding>
-            <Label fx:id="statusLabel" text="San sang."/>
+            <Label fx:id="statusLabel" text="San sang." styleClass="status-text"/>
         </HBox>
     </bottom>
 </BorderPane>
