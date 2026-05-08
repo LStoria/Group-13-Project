@@ -1,27 +1,54 @@
 package network;
 
-import com.google.gson.Gson;
 import java.io.*;
 import java.net.Socket;
+import java.util.function.Consumer;
 
 public class AuctionClient {
-    public static void main(String[] args) {
-        try (Socket socket = new Socket("localhost", 8080);
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+    private Socket socket;
+    private PrintWriter out;
+    private BufferedReader in;
+    private boolean isRunning = false;
 
-            System.out.println("✅ Đã kết nối tới Server!");
+    // Hàm kết nối - Người 3 sẽ gọi khi bắt đầu ứng dụng
+    public void connect(String host, int port, Consumer<String> onMessageReceived) throws IOException {
+        this.socket = new Socket(host, port);
+        this.out = new PrintWriter(socket.getOutputStream(), true);
+        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.isRunning = true;
 
-            // Gửi thử một gói tin JSON Đăng nhập
-            String loginJson = "{\"action\": \"LOGIN\", \"username\": \"tung_nhom_truong\"}";
-            out.println(loginJson);
+        // TẠO LUỒNG LẮNG NGHE (QUAN TRỌNG): Đảm bảo nhận dữ liệu realtime không treo GUI
+        new Thread(() -> {
+            try {
+                String response;
+                while (isRunning && (response = in.readLine()) != null) {
+                    // Chuyển dữ liệu nhận được về cho GUI xử lý qua Consumer
+                    onMessageReceived.accept(response);
+                }
+            } catch (IOException e) {
+                System.err.println("Mất kết nối từ Server: " + e.getMessage());
+            } finally {
+                closeConnection();
+            }
+        }).start();
+    }
 
-            // Đợi nghe phản hồi từ Server
-            String response = in.readLine();
-            System.out.println("📩 Server phản hồi: " + response);
+    // Hàm gửi yêu cầu (Đăng nhập, Đặt giá...) dưới dạng JSON
+    public void sendRequest(String jsonRequest) {
+        if (out != null) {
+            out.println(jsonRequest);
+        }
+    }
 
+    // Đóng kết nối an toàn
+    public void closeConnection() {
+        try {
+            isRunning = false;
+            if (in != null) in.close();
+            if (out != null) out.close();
+            if (socket != null) socket.close();
         } catch (IOException e) {
-            System.err.println("❌ Không thể kết nối tới Server. Hãy chắc chắn Server đang chạy!");
+            e.printStackTrace();
         }
     }
 }
