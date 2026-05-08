@@ -7,7 +7,7 @@ import java.util.List;
 
 public class AuctionManager {
     // Danh sách các sản phẩm đang đấu giá (giả lập)
-    private static List<Item> items = new ArrayList<>();
+    private static final List<Item> items = new ArrayList<>();
 
     static {
         // Khởi tạo một vài món đồ mẫu
@@ -16,7 +16,7 @@ public class AuctionManager {
     }
 
     // Hàm lấy danh sách sản phẩm dưới dạng JSON để gửi cho Client
-    public static String getAllItemsJson() {
+    public static synchronized String getAllItemsJson() {
         JsonArray array = new JsonArray();
         for (Item item : items) {
             JsonObject obj = new JsonObject();
@@ -30,7 +30,7 @@ public class AuctionManager {
     }
 
     // Hàm cập nhật giá đấu giá cho một sản phẩm
-    public static boolean updateBid(int itemId, double bidAmount, String username) {
+    public static synchronized boolean updateBid(int itemId, double bidAmount, String username) {
         for (Item item : items) {
             if (item.id == itemId) {
                 if (bidAmount > item.currentPrice) {
@@ -66,14 +66,20 @@ public class AuctionManager {
             while (true) {
                 try {
                     Thread.sleep(1000); // Đợi 1 giây
-                    for (Item item : items) {
+                    synchronized (AuctionManager.class) {
+                        for (Item item : items) {
                         if (item.id == itemId && item.timeLeft > 0) {
                             item.timeLeft--;
                             if (item.timeLeft == 0) {
-                                AuctionServer.broadcast("{\"action\":\"END\", \"item\":\"" + item.name + "\", \"winner\":\"" + item.winner + "\"}");
+                                JsonObject event = new JsonObject();
+                                event.addProperty("action", "END");
+                                event.addProperty("item", item.name);
+                                event.addProperty("winner", item.winner);
+                                AuctionServer.broadcast(event.toString());
                                 return;
                             }
                         }
+                    }
                     }
                 } catch (InterruptedException e) { e.printStackTrace(); }
             }

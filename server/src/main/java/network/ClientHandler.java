@@ -5,16 +5,18 @@ import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class ClientHandler implements Runnable {
-    private Socket socket;
+    private final Socket socket;
     
     // Đưa PrintWriter ra ngoài để hàm sendMessage() có thể sử dụng được
     private PrintWriter out; 
     private BufferedReader in;
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -31,8 +33,8 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             // Khởi tạo luồng đọc (in) và ghi (out)
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
 
             String inputLine;
             // 2. VÒNG LẶP LẮNG NGHE: Liên tục đọc tin nhắn Client gửi lên
@@ -46,9 +48,12 @@ public class ClientHandler implements Runnable {
                     if (request.has("action")) {
                         String action = request.get("action").getAsString();
                         handleAction(action, request); // Gọi hàm xử lý điều hướng
+                    } else {
+                        sendStatus("ERROR", "Request thiếu action.");
                     }
                 } catch (Exception e) {
                     System.err.println("❌ Lỗi sai định dạng JSON từ Client.");
+                    sendStatus("ERROR", "Dữ liệu gửi lên không hợp lệ.");
                 }
             }
         } catch (IOException e) {
@@ -64,32 +69,51 @@ public class ClientHandler implements Runnable {
         switch (action) {
             case "LOGIN":
                 // Tạm thời trả về JSON thành công, sau này sẽ kết nối với UserRepository
-                out.println("{\"status\":\"SUCCESS\", \"message\":\"Đăng nhập thành công!\"}");
+                sendStatus("SUCCESS", "Đăng nhập thành công!");
                 break;
                 
             case "BID":
                 // Trong hàm handleAction của ClientHandler.java
+                if (!request.has("itemId") || !request.has("amount") || !request.has("user")) {
+                    sendStatus("ERROR", "Request đặt giá thiếu dữ liệu.");
+                    break;
+                }
                 int itemId = request.get("itemId").getAsInt();
                 double bidAmount = request.get("amount").getAsDouble();
                 String username = request.get("user").getAsString();
 
                 if (AuctionManager.updateBid(itemId, bidAmount, username)) {
                     // Thông báo cho TẤT CẢ mọi người về mức giá mới
-                    AuctionServer.broadcast("{\"action\":\"UPDATE_PRICE\", \"itemId\":" + itemId + ", \"price\":" + bidAmount + ", \"winner\":\"" + username + "\"}");
-                    out.println("{\"status\":\"SUCCESS\", \"message\":\"Đặt giá thành công!\"}");
+                    JsonObject update = new JsonObject();
+                    update.addProperty("action", "UPDATE_PRICE");
+                    update.addProperty("itemId", itemId);
+                    update.addProperty("price", bidAmount);
+                    update.addProperty("winner", username);
+                    AuctionServer.broadcast(gson.toJson(update));
+                    sendStatus("SUCCESS", "Đặt giá thành công!");
                 } else {
-                    out.println("{\"status\":\"ERROR\", \"message\":\"Giá đặt phải cao hơn giá hiện tại hoặc sản phẩm không tồn tại!\"}");
+                    sendStatus("ERROR", "Giá đặt phải cao hơn giá hiện tại hoặc sản phẩm không tồn tại!");
                 }
                 break;
 
             case "VIEW_ITEMS":
                 String itemsJson = AuctionManager.getAllItemsJson();
-                out.println("{\"status\":\"OK\", \"data\":" + itemsJson + "}");
+                JsonObject response = new JsonObject();
+                response.addProperty("status", "OK");
+                response.add("data", gson.fromJson(itemsJson, com.google.gson.JsonArray.class));
+                out.println(gson.toJson(response));
                 break;
                 
             default:
-                out.println("{\"status\":\"ERROR\", \"message\":\"Hành động không được hỗ trợ.\"}");
+                sendStatus("ERROR", "Hành động không được hỗ trợ.");
         }
+    }
+
+    private void sendStatus(String status, String message) {
+        JsonObject response = new JsonObject();
+        response.addProperty("status", status);
+        response.addProperty("message", message);
+        out.println(gson.toJson(response));
     }
 
     // Hàm dọn dẹp an toàn bộ nhớ

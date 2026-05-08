@@ -11,7 +11,7 @@ public class AuctionServer {
     // Chọn một port trống, ví dụ 8080 hoặc 9999
     private static final int PORT = 8080; 
     // Tạo một danh sách an toàn (thread-safe) để lưu các Client đang kết nối
-    public static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
+    public static final List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("=== Hệ thống Đấu giá Online ===");
@@ -29,7 +29,7 @@ public class AuctionServer {
                 // Ghi danh Client mới vào danh sách quản lý
                 clients.add(handler);
 
-                new Thread(handler).start();
+                new Thread(handler, "client-handler-" + clientSocket.getPort()).start();
             }
         } catch (IOException e) {
             System.err.println("❌ Lỗi khi khởi động server: " + e.getMessage());
@@ -39,8 +39,10 @@ public class AuctionServer {
     // Để gửi tin nhắn cho TẤT CẢ mọi người trong phòng
     public static void broadcast(String message) {
         // Duyệt qua danh sách và gửi tin nhắn đến từng Client
-        for (ClientHandler client : clients) {
-            client.sendMessage(message);
+        synchronized (clients) {
+            for (ClientHandler client : clients) {
+                client.sendMessage(message);
+            }
         }
     }
 }
