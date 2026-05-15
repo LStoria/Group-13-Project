@@ -14,16 +14,22 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.SellerController"
             stylesheets="@../styles/app.css"
             styleClass="page">
     <top>
-        <VBox spacing="4" styleClass="header">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="header">
             <padding>
                 <Insets top="14" right="16" bottom="14" left="16"/>
             </padding>
-            <Label text="Quan ly san pham ban" styleClass="title"/>
-            <Label text="Tao san pham dau gia va theo doi trang thai hien tai" styleClass="subtitle"/>
-        </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Quan ly san pham ban" styleClass="title"/>
+                <Label fx:id="usernameLabel" text="Seller" styleClass="subtitle"/>
+            </VBox>
+            <Button text="Xem phong dau gia" onAction="#openBidderView" styleClass="secondary-button"/>
+            <Button text="Tai lai" onAction="#refreshItems" styleClass="secondary-button"/>
+            <Button text="Dang xuat" onAction="#handleLogout" styleClass="danger-button"/>
+        </HBox>
     </top>
 
     <center>
@@ -32,14 +38,15 @@
                 <Insets top="14" right="14" bottom="14" left="14"/>
             </padding>
             <Label text="San pham cua nguoi ban" styleClass="section-title"/>
-            <TableView VBox.vgrow="ALWAYS">
+            <TableView fx:id="itemTable" VBox.vgrow="ALWAYS">
                 <columns>
-                    <TableColumn text="ID" prefWidth="70"/>
-                    <TableColumn text="Ten san pham" prefWidth="240"/>
-                    <TableColumn text="Loai" prefWidth="130"/>
-                    <TableColumn text="Gia khoi diem" prefWidth="130"/>
-                    <TableColumn text="Gia hien tai" prefWidth="130"/>
-                    <TableColumn text="Trang thai" prefWidth="130"/>
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="70"/>
+                    <TableColumn fx:id="nameColumn" text="Ten san pham" prefWidth="240"/>
+                    <TableColumn fx:id="typeColumn" text="Loai" prefWidth="130"/>
+                    <TableColumn fx:id="startPriceColumn" text="Gia khoi diem" prefWidth="130"/>
+                    <TableColumn fx:id="currentPriceColumn" text="Gia hien tai" prefWidth="130"/>
+                    <TableColumn fx:id="statusColumn" text="Trang thai" prefWidth="110"/>
+                    <TableColumn fx:id="timeColumn" text="Con lai" prefWidth="90"/>
                 </columns>
             </TableView>
         </VBox>
@@ -52,14 +59,14 @@
             </padding>
             <Label text="Them san pham" styleClass="section-title"/>
             <Label text="Ten san pham" styleClass="field-label"/>
-            <TextField promptText="Nhap ten san pham"/>
+            <TextField fx:id="nameField" promptText="Nhap ten san pham"/>
             <Label text="Loai" styleClass="field-label"/>
-            <ComboBox promptText="Chon loai" maxWidth="Infinity"/>
+            <ComboBox fx:id="typeCombo" promptText="Chon loai" maxWidth="Infinity"/>
             <Label text="Gia khoi diem" styleClass="field-label"/>
-            <TextField promptText="Nhap gia ban dau"/>
+            <TextField fx:id="priceField" promptText="Nhap gia ban dau"/>
             <Label text="Mo ta" styleClass="field-label"/>
-            <TextArea promptText="Nhap mo ta ngan" prefRowCount="4" wrapText="true"/>
-            <Button text="Tao phien dau gia" maxWidth="Infinity" styleClass="primary-button"/>
+            <TextArea fx:id="descriptionArea" promptText="Nhap mo ta ngan" prefRowCount="4" wrapText="true"/>
+            <Button text="Tao phien dau gia" onAction="#createItem" maxWidth="Infinity" styleClass="primary-button"/>
         </VBox>
     </right>
 
@@ -68,7 +75,7 @@
             <padding>
                 <Insets top="10" right="14" bottom="10" left="14"/>
             </padding>
-            <Label text="San sang quan ly san pham." styleClass="status-text"/>
+            <Label fx:id="statusLabel" text="San sang quan ly san pham." styleClass="status-text"/>
         </HBox>
     </bottom>
 </BorderPane>

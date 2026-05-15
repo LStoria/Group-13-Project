@@ -26,11 +26,23 @@ public class MainApp extends Application {
     }
 
     public static void showLogin() throws IOException {
-        setScene("/view/login.fxml", 420, 320);
+        setScene("/view/login.fxml", 460, 420);
     }
 
     public static void showHome() throws IOException {
         setScene("/view/home.fxml", 900, 560);
+    }
+
+    public static void showSeller() throws IOException {
+        setScene("/view/seller.fxml", 980, 600);
+    }
+
+    public static void showBid() throws IOException {
+        setScene("/view/bid.fxml", 900, 560);
+    }
+
+    public static void showAdmin() throws IOException {
+        setScene("/view/admin.fxml", 1040, 620);
     }
 
     private static void setScene(String fxmlPath, double width, double height) throws IOException {

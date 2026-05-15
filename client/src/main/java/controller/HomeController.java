@@ -24,6 +24,8 @@ public class HomeController {
     @FXML private TableColumn<AuctionItem, String> nameColumn;
     @FXML private TableColumn<AuctionItem, Number> priceColumn;
     @FXML private TableColumn<AuctionItem, String> winnerColumn;
+    @FXML private TableColumn<AuctionItem, String> statusColumn;
+    @FXML private TableColumn<AuctionItem, Number> timeColumn;
     @FXML private TextField bidAmountField;
 
     private final ObservableList<AuctionItem> items = FXCollections.observableArrayList();
@@ -38,6 +40,12 @@ public class HomeController {
         nameColumn.setCellValueFactory(data -> data.getValue().nameProperty());
         priceColumn.setCellValueFactory(data -> data.getValue().currentPriceProperty());
         winnerColumn.setCellValueFactory(data -> data.getValue().winnerProperty());
+        if (statusColumn != null) {
+            statusColumn.setCellValueFactory(data -> data.getValue().statusProperty());
+        }
+        if (timeColumn != null) {
+            timeColumn.setCellValueFactory(data -> data.getValue().timeLeftProperty());
+        }
         itemTable.setItems(items);
 
         client.setMessageListener(message -> Platform.runLater(() -> handleServerMessage(message)));
@@ -68,6 +76,10 @@ public class HomeController {
 
         if (amount <= selectedItem.getCurrentPrice()) {
             statusLabel.setText("Gia dat phai cao hon gia hien tai.");
+            return;
+        }
+        if (!"ACTIVE".equals(selectedItem.getStatus())) {
+            statusLabel.setText("Phien dau gia nay da ket thuc.");
             return;
         }
 
@@ -110,8 +122,13 @@ public class HomeController {
             items.add(new AuctionItem(
                     item.get("id").getAsInt(),
                     item.get("name").getAsString(),
+                    getString(item, "type", ""),
+                    getDouble(item, "startPrice", item.get("price").getAsDouble()),
                     item.get("price").getAsDouble(),
-                    item.get("winner").getAsString()
+                    getString(item, "winner", "-"),
+                    getString(item, "seller", ""),
+                    getString(item, "status", "ACTIVE"),
+                    getInt(item, "timeLeft", 0)
             ));
         }
     }
@@ -125,7 +142,18 @@ public class HomeController {
             updateItem(itemId, price, winner);
             statusLabel.setText("Gia san pham #" + itemId + " vua duoc cap nhat.");
         } else if ("END".equals(action) || "END_AUCTION".equals(action)) {
-            statusLabel.setText("Phien dau gia da ket thuc.");
+            if (json.has("item") && json.get("item").isJsonObject()) {
+                JsonObject item = json.getAsJsonObject("item");
+                updateItemStatus(item.get("id").getAsInt(), "ENDED", 0);
+            }
+            statusLabel.setText(json.has("message") ? json.get("message").getAsString() : "Phien dau gia da ket thuc.");
+        } else if ("TIME_TICK".equals(action) && json.has("items") && json.get("items").isJsonArray()) {
+            for (JsonElement element : json.getAsJsonArray("items")) {
+                JsonObject item = element.getAsJsonObject();
+                updateItemTime(item.get("id").getAsInt(), item.get("timeLeft").getAsInt());
+            }
+        } else if ("ITEM_CREATED".equals(action)) {
+            refreshItems();
         }
     }
 
@@ -138,5 +166,36 @@ public class HomeController {
             }
         }
         refreshItems();
+    }
+
+    private void updateItemTime(int itemId, int timeLeft) {
+        for (AuctionItem item : items) {
+            if (item.getId() == itemId) {
+                item.setTimeLeft(timeLeft);
+                return;
+            }
+        }
+    }
+
+    private void updateItemStatus(int itemId, String status, int timeLeft) {
+        for (AuctionItem item : items) {
+            if (item.getId() == itemId) {
+                item.setStatus(status);
+                item.setTimeLeft(timeLeft);
+                return;
+            }
+        }
+    }
+
+    private String getString(JsonObject item, String key, String defaultValue) {
+        return item.has(key) && !item.get(key).isJsonNull() ? item.get(key).getAsString() : defaultValue;
+    }
+
+    private int getInt(JsonObject item, String key, int defaultValue) {
+        return item.has(key) && !item.get(key).isJsonNull() ? item.get(key).getAsInt() : defaultValue;
+    }
+
+    private double getDouble(JsonObject item, String key, double defaultValue) {
+        return item.has(key) && !item.get(key).isJsonNull() ? item.get(key).getAsDouble() : defaultValue;
     }
 }

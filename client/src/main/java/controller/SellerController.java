@@ -8,24 +8,31 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import model.AuctionItem;
 import service.SocketClient;
 import util.MessageFactory;
 
-public class BidController {
+public class SellerController {
+    @FXML private Label usernameLabel;
     @FXML private Label statusLabel;
     @FXML private TableView<AuctionItem> itemTable;
     @FXML private TableColumn<AuctionItem, Number> idColumn;
     @FXML private TableColumn<AuctionItem, String> nameColumn;
-    @FXML private TableColumn<AuctionItem, Number> priceColumn;
-    @FXML private TableColumn<AuctionItem, String> winnerColumn;
+    @FXML private TableColumn<AuctionItem, String> typeColumn;
+    @FXML private TableColumn<AuctionItem, Number> startPriceColumn;
+    @FXML private TableColumn<AuctionItem, Number> currentPriceColumn;
     @FXML private TableColumn<AuctionItem, String> statusColumn;
-    @FXML private TextField selectedItemField;
-    @FXML private TextField bidAmountField;
+    @FXML private TableColumn<AuctionItem, Number> timeColumn;
+    @FXML private TextField nameField;
+    @FXML private ComboBox<String> typeCombo;
+    @FXML private TextField priceField;
+    @FXML private TextArea descriptionArea;
 
     private final ObservableList<AuctionItem> items = FXCollections.observableArrayList();
     private SocketClient client;
@@ -33,53 +40,63 @@ public class BidController {
     @FXML
     private void initialize() {
         client = MainApp.getSocketClient();
+        usernameLabel.setText("Seller: " + client.getUsername());
+
+        typeCombo.setItems(FXCollections.observableArrayList("Electronics", "Vehicle", "Art", "Other"));
+        typeCombo.getSelectionModel().select("Electronics");
 
         idColumn.setCellValueFactory(data -> data.getValue().idProperty());
         nameColumn.setCellValueFactory(data -> data.getValue().nameProperty());
-        priceColumn.setCellValueFactory(data -> data.getValue().currentPriceProperty());
-        winnerColumn.setCellValueFactory(data -> data.getValue().winnerProperty());
+        typeColumn.setCellValueFactory(data -> data.getValue().typeProperty());
+        startPriceColumn.setCellValueFactory(data -> data.getValue().startPriceProperty());
+        currentPriceColumn.setCellValueFactory(data -> data.getValue().currentPriceProperty());
         statusColumn.setCellValueFactory(data -> data.getValue().statusProperty());
+        timeColumn.setCellValueFactory(data -> data.getValue().timeLeftProperty());
         itemTable.setItems(items);
-        itemTable.getSelectionModel().selectedItemProperty().addListener((observable, oldItem, newItem) -> {
-            selectedItemField.setText(newItem == null ? "" : newItem.getName());
-        });
 
         client.setMessageListener(message -> Platform.runLater(() -> handleServerMessage(message)));
         refreshItems();
     }
 
     @FXML
-    private void handleBid() {
-        AuctionItem selectedItem = itemTable.getSelectionModel().getSelectedItem();
-        if (selectedItem == null) {
-            statusLabel.setText("Hay chon san pham can dau gia.");
-            return;
-        }
-
-        double amount;
-        try {
-            amount = Double.parseDouble(bidAmountField.getText().trim());
-        } catch (NumberFormatException ex) {
-            statusLabel.setText("Gia dat khong hop le.");
-            return;
-        }
-
-        if (amount <= selectedItem.getCurrentPrice()) {
-            statusLabel.setText("Gia dat phai cao hon gia hien tai.");
-            return;
-        }
-        if (!"ACTIVE".equals(selectedItem.getStatus())) {
-            statusLabel.setText("Phien dau gia nay da ket thuc.");
-            return;
-        }
-
-        client.sendRequest(MessageFactory.bidRequest(selectedItem.getId(), amount, client.getUsername()));
-        bidAmountField.clear();
+    private void refreshItems() {
+        client.sendRequest(MessageFactory.viewMyItemsRequest(client.getUsername()));
+        statusLabel.setText("Dang tai san pham cua seller...");
     }
 
-    private void refreshItems() {
-        client.sendRequest(MessageFactory.viewItemsRequest());
-        statusLabel.setText("Dang tai danh sach san pham...");
+    @FXML
+    private void createItem() {
+        String name = nameField.getText().trim();
+        String type = typeCombo.getValue();
+        double price;
+        try {
+            price = Double.parseDouble(priceField.getText().trim());
+        } catch (NumberFormatException ex) {
+            statusLabel.setText("Gia khoi diem khong hop le.");
+            return;
+        }
+
+        client.sendRequest(MessageFactory.createItemRequest(name, type, price, client.getUsername()));
+        descriptionArea.clear();
+    }
+
+    @FXML
+    private void openBidderView() {
+        try {
+            MainApp.showHome();
+        } catch (Exception ex) {
+            statusLabel.setText("Khong mo duoc man hinh dau gia.");
+        }
+    }
+
+    @FXML
+    private void handleLogout() {
+        client.closeConnection();
+        try {
+            MainApp.showLogin();
+        } catch (Exception ex) {
+            statusLabel.setText("Khong quay lai duoc man hinh dang nhap.");
+        }
     }
 
     private void handleServerMessage(String message) {
@@ -87,13 +104,18 @@ public class BidController {
             JsonObject json = MessageFactory.fromJson(message, JsonObject.class);
             if (json.has("data") && json.get("data").isJsonArray()) {
                 loadItems(json.getAsJsonArray("data"));
-                statusLabel.setText("Da tai danh sach san pham.");
+                statusLabel.setText("Da tai san pham cua seller.");
+            }
+            if (json.has("status") && "SUCCESS".equals(json.get("status").getAsString())) {
+                statusLabel.setText(json.has("message") ? json.get("message").getAsString() : "Thanh cong.");
+                nameField.clear();
+                priceField.clear();
+                refreshItems();
+            } else if (json.has("status") && "ERROR".equals(json.get("status").getAsString())) {
+                statusLabel.setText(json.has("message") ? json.get("message").getAsString() : "Co loi xay ra.");
             }
             if (json.has("action")) {
                 handleRealtimeAction(json);
-            }
-            if (json.has("message")) {
-                statusLabel.setText(json.get("message").getAsString());
             }
         } catch (Exception ex) {
             statusLabel.setText("Du lieu server khong hop le.");
@@ -120,31 +142,20 @@ public class BidController {
 
     private void handleRealtimeAction(JsonObject json) {
         String action = json.get("action").getAsString();
-        if ("UPDATE_PRICE".equals(action)) {
-            updateItem(json.get("itemId").getAsInt(), json.get("price").getAsDouble(), json.get("winner").getAsString());
-        } else if ("ITEM_CREATED".equals(action)) {
+        if ("ITEM_CREATED".equals(action) || "END_AUCTION".equals(action)) {
             refreshItems();
-        } else if ("END_AUCTION".equals(action) && json.has("item")) {
-            JsonObject item = json.getAsJsonObject("item");
-            updateItemStatus(item.get("id").getAsInt(), "ENDED");
-        }
-    }
-
-    private void updateItem(int itemId, double price, String winner) {
-        for (AuctionItem item : items) {
-            if (item.getId() == itemId) {
-                item.setCurrentPrice(price);
-                item.setWinner(winner);
-                return;
+        } else if ("TIME_TICK".equals(action) && json.has("items")) {
+            for (JsonElement element : json.getAsJsonArray("items")) {
+                JsonObject item = element.getAsJsonObject();
+                updateItemTime(item.get("id").getAsInt(), item.get("timeLeft").getAsInt());
             }
         }
-        refreshItems();
     }
 
-    private void updateItemStatus(int itemId, String status) {
+    private void updateItemTime(int itemId, int timeLeft) {
         for (AuctionItem item : items) {
             if (item.getId() == itemId) {
-                item.setStatus(status);
+                item.setTimeLeft(timeLeft);
                 return;
             }
         }

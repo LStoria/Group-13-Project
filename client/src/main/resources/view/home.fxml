@@ -39,6 +39,8 @@
                     <TableColumn fx:id="nameColumn" text="San pham" prefWidth="300"/>
                     <TableColumn fx:id="priceColumn" text="Gia hien tai" prefWidth="160"/>
                     <TableColumn fx:id="winnerColumn" text="Nguoi dan gia" prefWidth="190"/>
+                    <TableColumn fx:id="statusColumn" text="Trang thai" prefWidth="110"/>
+                    <TableColumn fx:id="timeColumn" text="Con lai" prefWidth="90"/>
                 </columns>
             </TableView>
         </VBox>

@@ -17,6 +17,8 @@ public class ClientHandler implements Runnable {
     private PrintWriter out; 
     private BufferedReader in;
     private final Gson gson = new Gson();
+    private boolean authenticated;
+    private String currentRole = "";
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -24,7 +26,7 @@ public class ClientHandler implements Runnable {
 
     // 1. HÀM GỬI TIN: Server sẽ gọi hàm này khi dùng lệnh broadcast()
     public void sendMessage(String message) {
-        if (out != null) {
+        if (out != null && authenticated) {
             out.println(message);
         }
     }
@@ -68,8 +70,38 @@ public class ClientHandler implements Runnable {
     private void handleAction(String action, JsonObject request) {
         switch (action) {
             case "LOGIN":
-                // Tạm thời trả về JSON thành công, sau này sẽ kết nối với UserRepository
-                sendStatus("SUCCESS", "Đăng nhập thành công!");
+                String loginUser = request.has("username") ? request.get("username").getAsString() : "";
+                String password = request.has("password") ? request.get("password").getAsString() : "";
+                JsonObject loginResponse = AuctionManager.authenticate(loginUser, password);
+                authenticated = "SUCCESS".equals(loginResponse.get("status").getAsString());
+                currentRole = authenticated && loginResponse.has("role") ? loginResponse.get("role").getAsString() : "";
+                out.println(gson.toJson(loginResponse));
+                break;
+
+            case "REGISTER":
+                String registerUser = request.has("username") ? request.get("username").getAsString() : "";
+                String registerPassword = request.has("password") ? request.get("password").getAsString() : "";
+                String registerRole = request.has("role") ? request.get("role").getAsString() : "BIDDER";
+                out.println(gson.toJson(AuctionManager.register(registerUser, registerPassword, registerRole)));
+                break;
+
+            case "CREATE_ITEM":
+                if (!request.has("name") || !request.has("price") || !request.has("seller")) {
+                    sendStatus("ERROR", "Request tạo sản phẩm thiếu dữ liệu.");
+                    break;
+                }
+                String name = request.get("name").getAsString();
+                String type = request.has("type") ? request.get("type").getAsString() : "Other";
+                double price = request.get("price").getAsDouble();
+                String seller = request.get("seller").getAsString();
+                JsonObject createResponse = AuctionManager.createItem(name, type, price, seller);
+                out.println(gson.toJson(createResponse));
+                if ("SUCCESS".equals(createResponse.get("status").getAsString())) {
+                    JsonObject event = new JsonObject();
+                    event.addProperty("action", "ITEM_CREATED");
+                    event.add("item", createResponse.get("item"));
+                    AuctionServer.broadcast(gson.toJson(event));
+                }
                 break;
                 
             case "BID":
@@ -97,11 +129,27 @@ public class ClientHandler implements Runnable {
                 break;
 
             case "VIEW_ITEMS":
-                String itemsJson = AuctionManager.getAllItemsJson();
+            case "VIEW_MY_ITEMS":
+                String sellerFilter = null;
+                if ("VIEW_MY_ITEMS".equals(action) && request.has("seller")) {
+                    sellerFilter = request.get("seller").getAsString();
+                }
+                String itemsJson = AuctionManager.getItemsJson(sellerFilter);
                 JsonObject response = new JsonObject();
                 response.addProperty("status", "OK");
                 response.add("data", gson.fromJson(itemsJson, com.google.gson.JsonArray.class));
                 out.println(gson.toJson(response));
+                break;
+
+            case "VIEW_USERS":
+                if (!"ADMIN".equals(currentRole)) {
+                    sendStatus("ERROR", "Chỉ admin mới được xem danh sách user.");
+                    break;
+                }
+                JsonObject usersResponse = new JsonObject();
+                usersResponse.addProperty("status", "OK");
+                usersResponse.add("users", gson.fromJson(AuctionManager.getUsersJson(), com.google.gson.JsonArray.class));
+                out.println(gson.toJson(usersResponse));
                 break;
                 
             default:

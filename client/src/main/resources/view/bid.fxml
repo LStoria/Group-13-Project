@@ -30,13 +30,13 @@
             <padding>
                 <Insets top="14" right="14" bottom="14" left="14"/>
             </padding>
-            <TableView>
+            <TableView fx:id="itemTable">
                 <columns>
-                    <TableColumn text="ID" prefWidth="70"/>
-                    <TableColumn text="San pham" prefWidth="260"/>
-                    <TableColumn text="Gia hien tai" prefWidth="150"/>
-                    <TableColumn text="Nguoi dang dan" prefWidth="170"/>
-                    <TableColumn text="Trang thai" prefWidth="130"/>
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="70"/>
+                    <TableColumn fx:id="nameColumn" text="San pham" prefWidth="260"/>
+                    <TableColumn fx:id="priceColumn" text="Gia hien tai" prefWidth="150"/>
+                    <TableColumn fx:id="winnerColumn" text="Nguoi dang dan" prefWidth="170"/>
+                    <TableColumn fx:id="statusColumn" text="Trang thai" prefWidth="130"/>
                 </columns>
             </TableView>
         </VBox>
@@ -49,10 +49,10 @@
             </padding>
             <Label text="Thong tin dat gia" styleClass="section-title"/>
             <Label text="San pham dang chon" styleClass="field-label"/>
-            <TextField promptText="Ten san pham" editable="false"/>
+            <TextField fx:id="selectedItemField" promptText="Ten san pham" editable="false"/>
             <Label text="Gia moi" styleClass="field-label"/>
-            <TextField promptText="Nhap gia cao hon gia hien tai"/>
-            <Button text="Gui gia dau" maxWidth="Infinity" styleClass="primary-button"/>
+            <TextField fx:id="bidAmountField" promptText="Nhap gia cao hon gia hien tai"/>
+            <Button text="Gui gia dau" onAction="#handleBid" maxWidth="Infinity" styleClass="primary-button"/>
         </VBox>
     </right>
 
@@ -61,7 +61,7 @@
             <padding>
                 <Insets top="10" right="14" bottom="10" left="14"/>
             </padding>
-            <Label text="San sang dat gia." styleClass="status-text"/>
+            <Label fx:id="statusLabel" text="San sang dat gia." styleClass="status-text"/>
         </HBox>
     </bottom>
 </BorderPane>
