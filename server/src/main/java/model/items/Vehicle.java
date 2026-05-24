@@ -1,4 +1,4 @@
-package model;
+package model.items;
 
 public class Vehicle extends Item {
 
