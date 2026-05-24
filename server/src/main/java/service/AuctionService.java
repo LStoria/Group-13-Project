@@ -1,8 +1,9 @@
 package service;
 
-import model.*;
-
-import model.items.User;
+import model.auction.Auction;
+import model.auction.AuctionStatus;
+import model.auction.BidTransaction;
+import model.user.User;
 import repository.AuctionRepository;
 import repository.BidTransactionRepository;
 

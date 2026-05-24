@@ -1,7 +1,7 @@
-package model;
+package model.auction;
 
-import model.items.Entity;
-import model.items.User;
+import model.item.Entity;
+import model.user.User;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +31,14 @@ public class BidTransaction extends Entity {
 
     public User getBidder() {
         return bidder;
+    }
+
+    public Long getAuctionId() {
+        return getAuction().getId();
+    }
+
+    public Long getBidderId() {
+        return getBidder().getId();
     }
 
     public double getAmount() {

@@ -1,6 +1,6 @@
 package repository;
 
-import model.items.Item;
+import model.item.Item;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,5 +16,7 @@ public interface ItemRepository {
     void delete(Long id);
 
     void update(Item item);
+
+    boolean existsById(Long id);
 
 }

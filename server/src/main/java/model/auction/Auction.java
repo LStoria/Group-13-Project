@@ -1,8 +1,8 @@
-package model;
+package model.auction;
 
-import model.items.Entity;
-import model.items.Item;
-import model.items.User;
+import model.item.Entity;
+import model.item.Item;
+import model.user.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package model;
+package model.auction;
 
 public enum AuctionStatus {
 

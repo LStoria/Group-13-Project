@@ -1,6 +1,6 @@
 package repository;
 
-import model.Auction;
+import model.auction.Auction;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,5 +16,7 @@ public interface AuctionRepository {
     void delete(Long id);
 
     void update(Auction auction);
+
+    boolean existsById(Long id);
 
 }
