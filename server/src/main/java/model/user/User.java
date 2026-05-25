@@ -1,6 +1,6 @@
-package model;
+package model.user;
 
-import role.Role;
+import model.item.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +46,10 @@ public class User extends Entity {
 
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    public List<Role> getRoles() {
+        return new ArrayList<>(roles);
     }
 
     public void addRole(Role role) {

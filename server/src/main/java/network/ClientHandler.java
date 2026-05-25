@@ -126,6 +126,24 @@ public class ClientHandler implements Runnable {
                 } else {
                     sendStatus("ERROR", "Giá đặt phải cao hơn giá hiện tại hoặc sản phẩm không tồn tại!");
                 }
+
+                // Đảm bảo tại một thời điểm chỉ 1 luồng được xử lý món hàng này
+                synchronized (AuctionManager.items) {
+                    for (AuctionManager.Item item : AuctionManager.items) {
+                        if (item.id == itemId) {
+                            if (bidAmount > item.currentPrice) {
+                                item.currentPrice = bidAmount;
+                                item.winner = username;
+
+                                // Thông báo giá mới cho tất cả mọi người
+                                AuctionServer.broadcast("{\"action\":\"UPDATE\", \"price\":" + bidAmount + "}");
+                            } else {
+                                sendMessage("{\"status\":\"FAILED\", \"reason\":\"Giá quá thấp!\"}");
+                            }
+                            break;
+                        }
+                    }
+                }
                 break;
 
             case "VIEW_ITEMS":

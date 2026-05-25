@@ -1,4 +1,4 @@
-package model;
+package model.item;
 
 public class Electronics extends Item {
 

@@ -1,4 +1,4 @@
-package role;
+package model.user;
 
 public class AdminRole implements Role {
 

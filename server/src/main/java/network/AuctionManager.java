@@ -23,7 +23,7 @@ public class AuctionManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path DATA_FILE = Path.of("data", "auction-data.json");
     private static final boolean PERSISTENCE_ENABLED = !System.getProperty("java.class.path", "").contains("junit");
-    private static final List<Item> items = new ArrayList<>();
+    public static final List<Item> items = new ArrayList<>();
     private static final Map<String, UserAccount> users = new HashMap<>();
     private static final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor(runnable -> {
         Thread thread = new Thread(runnable, "auction-timer");
