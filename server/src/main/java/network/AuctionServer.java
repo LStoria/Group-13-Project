@@ -46,6 +46,7 @@ public class AuctionServer {
     // Để gửi tin nhắn cho TẤT CẢ mọi người trong phòng
     public static void broadcast(String message) {
         // Bắt buộc phải khóa danh sách lại khi duyệt vòng lặp
+        // Duyệt qua danh sách và gửi tin nhắn đến từng Client
         synchronized (clients) {
             for (ClientHandler client : clients) {
                 client.sendMessage(message);

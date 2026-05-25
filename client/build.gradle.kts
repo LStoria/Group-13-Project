@@ -10,7 +10,10 @@ repositories {
 
 dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
-    // Các thư viện JavaFX khác của bạn...
+
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 javafx {
@@ -19,7 +22,7 @@ javafx {
 }
 
 application {
-    mainClass.set("view.MainApp")
+    mainClass.set("app.MainApp")
 }
 
 tasks.withType<JavaCompile> {
@@ -29,4 +32,8 @@ tasks.withType<JavaCompile> {
 tasks.withType<JavaExec> {
     // Dòng này giúp các lệnh System.out.println in được tiếng Việt
     jvmArgs("-Dfile.encoding=UTF-8")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

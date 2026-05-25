@@ -10,9 +10,11 @@ repositories {
 }
 
 dependencies {
-    // Tạm thời để trống. 
-    // Sau này bạn sẽ thêm các thư viện xử lý JSON hoặc kết nối Database vào đây
     implementation("com.google.code.gson:gson:2.10.1")
+
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 application {
@@ -27,4 +29,8 @@ tasks.withType<JavaCompile> {
 tasks.withType<JavaExec> {
     // Dòng này giúp các lệnh System.out.println in được tiếng Việt
     jvmArgs("-Dfile.encoding=UTF-8")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

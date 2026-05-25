@@ -1,6 +1,6 @@
 package network;
 
-import com.google.code.gson.Gson;
+import com.google.gson.Gson;
 
 /**
  * Lớp hỗ trợ chuyển đổi dữ liệu giữa Object và JSON.
