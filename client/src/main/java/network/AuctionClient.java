@@ -48,6 +48,10 @@ public class AuctionClient {
     }
 
     // Đóng kết nối an toàn
+    // Kiểm tra trạng thái kết nối
+    public boolean isConnected() {
+        return socket != null && socket.isConnected() && !socket.isClosed() && isRunning;
+    }
     public void closeConnection() {
         try {
             isRunning = false;
