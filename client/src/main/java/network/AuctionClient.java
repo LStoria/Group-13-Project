@@ -43,9 +43,6 @@ public class AuctionClient {
         }
     }
 
-    public boolean isConnected() {
-        return socket != null && socket.isConnected() && !socket.isClosed() && isRunning;
-    }
 
     // Đóng kết nối an toàn
     // Kiểm tra trạng thái kết nối
