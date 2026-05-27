@@ -4,8 +4,8 @@ import model.auction.Auction;
 import model.auction.AuctionStatus;
 import model.auction.BidTransaction;
 import model.user.User;
-import repository.AuctionRepository;
-import repository.BidTransactionRepository;
+import repository.repointerface.AuctionRepository;
+import repository.repointerface.BidTransactionRepository;
 
 import java.time.LocalDateTime;
 

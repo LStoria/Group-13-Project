@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import database.DatabaseInitializer;
+
 public class AuctionServer {
     // Chọn một port trống, ví dụ 8080 hoặc 9999
     private static final int PORT = 8080;
@@ -20,6 +22,9 @@ public class AuctionServer {
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(50);
 
     public static void main(String[] args) {
+
+        DatabaseInitializer.initialize();
+
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("=== Hệ thống Đấu giá Online ===");
             System.out.println("Server đang khởi chạy và lắng nghe tại port " + PORT + "...");

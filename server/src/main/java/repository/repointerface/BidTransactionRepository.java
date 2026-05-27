@@ -1,4 +1,4 @@
-package repository;
+package repository.repointerface;
 
 import model.auction.BidTransaction;
 

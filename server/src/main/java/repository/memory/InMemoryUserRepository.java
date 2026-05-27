@@ -1,7 +1,7 @@
 package repository.memory;
 
 import model.user.User;
-import repository.UserRepository;
+import repository.repointerface.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;

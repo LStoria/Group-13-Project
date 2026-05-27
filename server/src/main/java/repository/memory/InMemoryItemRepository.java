@@ -1,7 +1,7 @@
 package repository.memory;
 
 import model.item.Item;
-import repository.ItemRepository;
+import repository.repointerface.ItemRepository;
 
 import java.util.ArrayList;
 import java.util.List;

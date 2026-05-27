@@ -1,7 +1,7 @@
 package repository.memory;
 
 import model.auction.Auction;
-import repository.AuctionRepository;
+import repository.repointerface.AuctionRepository;
 
 import java.util.ArrayList;
 import java.util.List;
