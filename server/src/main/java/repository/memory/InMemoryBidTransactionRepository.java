@@ -1,7 +1,7 @@
 package repository.memory;
 
 import model.auction.BidTransaction;
-import repository.BidTransactionRepository;
+import repository.repointerface.BidTransactionRepository;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
