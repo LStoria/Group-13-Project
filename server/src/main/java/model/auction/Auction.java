@@ -60,6 +60,14 @@ public class Auction extends Entity {
         this.status = status;
     }
 
+    public Item getItem() {
+        return item;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
     public LocalDateTime getEndTime() {
         return endTime;
     }

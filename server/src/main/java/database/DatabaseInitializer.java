@@ -38,6 +38,18 @@ public class DatabaseInitializer {
                 )
             """);
 
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS auctions(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    item_id INTEGER NOT NULL,
+                    current_price REAL NOT NULL,
+                    highest_bidder_id INTEGER,
+                    start_time TEXT NOT NULL,
+                    end_time TEXT NOT NULL,
+                    status TEXT NOT NULL
+                )
+            """);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
