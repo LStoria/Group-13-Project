@@ -76,4 +76,38 @@ public class Auction extends Entity {
         return bids;
     }
 
+
+    public synchronized void placeBid(BidTransaction bid) {
+
+        if (status == AuctionStatus.FINISHED
+                || status == AuctionStatus.CANCELED) {
+
+            throw new IllegalStateException(
+                    "Auction already closed"
+            );
+        }
+
+        if (LocalDateTime.now().isAfter(endTime)) {
+
+            status = AuctionStatus.FINISHED;
+
+            throw new IllegalStateException(
+                    "Auction expired"
+            );
+        }
+
+        if (bid.getAmount() <= currentPrice) {
+
+            throw new IllegalArgumentException(
+                    "Bid must be higher than current price"
+            );
+        }
+
+        currentPrice = bid.getAmount();
+
+        highestBidder = bid.getBidder();
+
+        bids.add(bid);
+    }
+
 }
