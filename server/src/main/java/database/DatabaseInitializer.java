@@ -50,9 +50,21 @@ public class DatabaseInitializer {
                 )
             """);
 
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS bid_transactions(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    auction_id INTEGER NOT NULL,
+                    bidder_id INTEGER NOT NULL,
+                    amount REAL NOT NULL,
+                    bid_time TEXT NOT NULL
+                )
+            """);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+
 
     }
 
