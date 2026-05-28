@@ -9,7 +9,7 @@ public abstract class Item extends Entity {
     protected double startPrice;
     protected double currentPrice;
 
-    public Item(String name, User seller, String description, double startPrice, double currentPrice) {
+    public Item(String name, User seller, double startPrice, double currentPrice) {
         this.name = name;
         this.seller = seller;
         this.startPrice = startPrice;
@@ -35,6 +35,8 @@ public abstract class Item extends Entity {
     public void setCurrentPrice(double currentPrice) {
         this.currentPrice = currentPrice;
     }
+
+    public abstract String getType();
 
     @Override
     public String toString() {

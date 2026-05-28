@@ -7,8 +7,8 @@ public class Vehicle extends Item {
     private String brand;
     private String model;
 
-    public Vehicle(String name, User seller, String description, double startPrice, double currentPrice, String brand, String model) {
-        super(name, seller, description, startPrice, currentPrice);
+    public Vehicle(String name, User seller, double startPrice, double currentPrice, String brand, String model) {
+        super(name, seller, startPrice, currentPrice);
         this.brand = brand;
         this.model = model;
     }
@@ -19,6 +19,11 @@ public class Vehicle extends Item {
 
     public String getModel() {
         return model;
+    }
+
+    @Override
+    public String getType() {
+        return "VEHICLE";
     }
 
 }

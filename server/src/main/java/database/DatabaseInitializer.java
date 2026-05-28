@@ -27,9 +27,21 @@ public class DatabaseInitializer {
                 )
             """);
 
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS items(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    item_type TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    seller_id INTEGER,
+                    start_price REAL NOT NULL,
+                    current_price REAL NOT NULL
+                )
+            """);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
 }
