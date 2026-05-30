@@ -5,47 +5,128 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Region?>
 
-<VBox xmlns="http://javafx.com/javafx/21"
+<HBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controller.LoginController"
-      alignment="CENTER"
-      spacing="18"
       stylesheets="@../styles/app.css"
-      styleClass="page">
-    <padding>
-        <Insets top="30" right="34" bottom="30" left="34"/>
-    </padding>
+      prefWidth="820" prefHeight="520">
 
-    <VBox alignment="CENTER" spacing="6">
-        <Label text="Auction Client" styleClass="title"/>
-        <Label text="Dang nhap de tham gia phien dau gia" styleClass="subtitle"/>
+    <!-- LEFT PANEL -->
+    <VBox styleClass="left-panel" prefWidth="300" spacing="0"
+          alignment="CENTER_LEFT">
+        <padding><Insets top="48" right="36" bottom="48" left="36"/></padding>
+
+        <Label text="Hệ thống" styleClass="brand-title"/>
+        <Label text="Đấu Giá" styleClass="brand-title"/>
+        <VBox.margin><Insets bottom="6"/></VBox.margin>
+
+        <Label text="AUCTION PLATFORM" styleClass="brand-subtitle">
+            <VBox.margin><Insets bottom="20"/></VBox.margin>
+        </Label>
+
+        <Separator styleClass="gold-divider" maxWidth="36">
+            <VBox.margin><Insets bottom="24"/></VBox.margin>
+        </Separator>
+
+        <!-- Tag 1 -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <VBox.margin><Insets bottom="12"/></VBox.margin>
+            <Label text="🔨" styleClass="tag-icon"/>
+            <Label text="Mua bán &amp; Đấu giá trực tuyến" styleClass="tag-text" wrapText="true"/>
+        </HBox>
+
+        <!-- Tag 2 -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <VBox.margin><Insets bottom="12"/></VBox.margin>
+            <Label text="⚡" styleClass="tag-icon"/>
+            <Label text="Nhanh chóng &amp; Tiện lợi" styleClass="tag-text"/>
+        </HBox>
+
+        <!-- Tag 3 -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <VBox.margin><Insets bottom="12"/></VBox.margin>
+            <Label text="🛡" styleClass="tag-icon"/>
+            <Label text="An toàn &amp; Bảo mật" styleClass="tag-text"/>
+        </HBox>
+
+        <!-- Tag 4 -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="👥" styleClass="tag-icon"/>
+            <Label text="Cộng đồng tin cậy" styleClass="tag-text"/>
+        </HBox>
     </VBox>
 
-    <GridPane hgap="12" vgap="12" maxWidth="360" styleClass="panel">
-        <padding>
-            <Insets top="18" right="18" bottom="18" left="18"/>
-        </padding>
-        <Label text="Host" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="hostField" prefWidth="220" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <!-- RIGHT PANEL -->
+    <VBox styleClass="right-panel" HBox.hgrow="ALWAYS" spacing="0"
+          alignment="CENTER_LEFT">
+        <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
 
-        <Label text="Port" styleClass="field-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextField fx:id="portField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Đăng nhập" styleClass="form-title"/>
+        <Label text="Kết nối tới phiên đấu giá của bạn" styleClass="form-sub">
+            <VBox.margin><Insets top="4" bottom="22"/></VBox.margin>
+        </Label>
 
-        <Label text="Username" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <TextField fx:id="usernameField" promptText="Nhap username" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <!-- Host + Port row -->
+        <HBox spacing="12">
+            <VBox.margin><Insets bottom="12"/></VBox.margin>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="HOST" styleClass="field-label"/>
+                <TextField fx:id="hostField" styleClass="input-field" maxWidth="1.7976931348623157E308"/>
+            </VBox>
+            <VBox spacing="5" prefWidth="110">
+                <Label text="PORT" styleClass="field-label"/>
+                <TextField fx:id="portField" styleClass="input-field"/>
+            </VBox>
+        </HBox>
 
-        <Label text="Password" styleClass="field-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <PasswordField fx:id="passwordField" promptText="Nhap password" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        <!-- Username -->
+        <VBox spacing="5">
+            <VBox.margin><Insets bottom="12"/></VBox.margin>
+            <Label text="TÊN ĐĂNG NHẬP" styleClass="field-label"/>
+            <TextField fx:id="usernameField" promptText="Nhập username"
+                       styleClass="input-field" maxWidth="1.7976931348623157E308"/>
+        </VBox>
 
-        <Label text="Role dang ky" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="roleCombo" maxWidth="Infinity" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-    </GridPane>
+        <!-- Password -->
+        <VBox spacing="5">
+            <VBox.margin><Insets bottom="12"/></VBox.margin>
+            <Label text="MẬT KHẨU" styleClass="field-label"/>
+            <PasswordField fx:id="passwordField" promptText="••••••••"
+                           styleClass="input-field" maxWidth="1.7976931348623157E308"/>
+        </VBox>
 
-    <Button fx:id="loginButton" text="Dang nhap" onAction="#handleLogin" minWidth="180" styleClass="primary-button"/>
-    <Button fx:id="registerButton" text="Dang ky tai khoan" onAction="#handleRegister" minWidth="180" styleClass="secondary-button"/>
-    <Label fx:id="statusLabel" text="Nhap thong tin de ket noi server." wrapText="true" styleClass="status-text"/>
-</VBox>
+        <!-- Role -->
+        <VBox spacing="5">
+            <VBox.margin><Insets bottom="22"/></VBox.margin>
+            <Label text="VAI TRÒ" styleClass="field-label"/>
+            <ComboBox fx:id="roleCombo" styleClass="combo-field"
+                      maxWidth="1.7976931348623157E308"/>
+        </VBox>
+
+        <!-- Buttons -->
+        <Button fx:id="loginButton" text="Đăng nhập" onAction="#handleLogin"
+                styleClass="btn-primary" maxWidth="1.7976931348623157E308"/>
+        <Button fx:id="registerButton" text="Đăng ký tài khoản" onAction="#handleRegister"
+                styleClass="btn-ghost" maxWidth="1.7976931348623157E308">
+            <VBox.margin><Insets top="8"/></VBox.margin>
+        </Button>
+
+        <!-- Status -->
+        <HBox spacing="6" alignment="CENTER_LEFT" styleClass="status-bar">
+            <VBox.margin><Insets top="16"/></VBox.margin>
+            <Label text="●" styleClass="status-dot"/>
+            <Label fx:id="statusLabel"
+                   text="Nhập thông tin để kết nối server."
+                   styleClass="status-text" wrapText="true"/>
+        </HBox>
+
+    </VBox>
+</HBox>
