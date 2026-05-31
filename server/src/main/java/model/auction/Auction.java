@@ -11,16 +11,11 @@ import java.util.List;
 public class Auction extends Entity {
 
     private Item item;
-
     private double currentPrice;
-
     private User highestBidder;
-
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-
     private AuctionStatus status;
-
     private final List<BidTransaction> bids = new ArrayList<>();
 
     public Auction(Item item,
