@@ -1,5 +1,5 @@
 {
-  "nextItemId": 4,
+  "nextItemId": 5,
   "items": [
     {
       "id": 1,
@@ -33,6 +33,17 @@
       "seller": "atizi",
       "status": "ENDED",
       "timeLeft": 0
+    },
+    {
+      "id": 4,
+      "name": "ronaldo",
+      "type": "Other",
+      "startPrice": 10000.0,
+      "currentPrice": 200000.0,
+      "winner": "toaimanh16",
+      "seller": "toaimanh16",
+      "status": "ENDED",
+      "timeLeft": 0
     }
   ],
   "users": [
@@ -52,9 +63,24 @@
       "role": "SELLER"
     },
     {
+      "username": "toaimanh16",
+      "passwordHash": "8f253ac870e8b84b4587a7a1ee0ea02da6ba42013bfc0ac15118e6debd541349",
+      "role": "SELLER"
+    },
+    {
       "username": "admin",
       "passwordHash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
       "role": "ADMIN"
+    },
+    {
+      "username": "ronaldo",
+      "passwordHash": "15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225",
+      "role": "BIDDER"
+    },
+    {
+      "username": "toaimanh",
+      "passwordHash": "839c63372259a6630c398587de049b1e8ce168b98545438bf2a50d0538731e89",
+      "role": "BIDDER"
     },
     {
       "username": "atizii",

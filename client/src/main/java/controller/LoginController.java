@@ -112,6 +112,7 @@ public class LoginController {
             }
 
             String role = json.has("role") ? json.get("role").getAsString() : "BIDDER";
+            MainApp.getSocketClient().setRole(role);
             if ("ADMIN".equals(role)) {
                 MainApp.showAdmin();
             } else if ("SELLER".equals(role)) {

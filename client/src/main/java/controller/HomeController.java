@@ -15,10 +15,12 @@ import javafx.scene.control.TextField;
 import model.AuctionItem;
 import service.SocketClient;
 import util.MessageFactory;
+import javafx.scene.control.Button;
 
 public class HomeController {
     @FXML private Label usernameLabel;
     @FXML private Label statusLabel;
+    @FXML private Button goToSellerButton;
     @FXML private TableView<AuctionItem> itemTable;
     @FXML private TableColumn<AuctionItem, Number> idColumn;
     @FXML private TableColumn<AuctionItem, String> nameColumn;
@@ -49,6 +51,13 @@ public class HomeController {
         itemTable.setItems(items);
 
         client.setMessageListener(message -> Platform.runLater(() -> handleServerMessage(message)));
+
+        // Hiện nút "Quay lại Seller" nếu người dùng là Seller
+        if (goToSellerButton != null) {
+            goToSellerButton.setVisible("SELLER".equals(client.getRole()));
+            goToSellerButton.setManaged("SELLER".equals(client.getRole()));
+        }
+
         refreshItems();
     }
 
@@ -85,6 +94,15 @@ public class HomeController {
 
         client.sendRequest(MessageFactory.bidRequest(selectedItem.getId(), amount, client.getUsername()));
         bidAmountField.clear();
+    }
+
+    @FXML
+    private void handleGoToSeller() {
+        try {
+            MainApp.showSeller();
+        } catch (Exception ex) {
+            statusLabel.setText("Khong mo duoc man hinh seller.");
+        }
     }
 
     @FXML

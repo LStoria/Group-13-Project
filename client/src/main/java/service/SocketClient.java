@@ -16,6 +16,7 @@ public class SocketClient {
     private Consumer<String> messageListener;
     private boolean running;
     private String username = "";
+    private String role = "BIDDER";
 
     public void connect(String host, int port, Consumer<String> listener) throws IOException {
         socket = new Socket(host, port);
@@ -57,6 +58,14 @@ public class SocketClient {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     private void startListening() {
