@@ -11,6 +11,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.ScrollPane?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -26,7 +28,6 @@
                 <Label text="Quan ly san pham ban" styleClass="title"/>
                 <Label fx:id="usernameLabel" text="Seller" styleClass="subtitle"/>
             </VBox>
-            <Button text="Xem phong dau gia" onAction="#openBidderView" styleClass="secondary-button"/>
             <Button text="Tai lai" onAction="#refreshItems" styleClass="secondary-button"/>
             <Button text="Dang xuat" onAction="#handleLogout" styleClass="danger-button"/>
         </HBox>
@@ -45,6 +46,9 @@
                     <TableColumn fx:id="typeColumn" text="Loai" prefWidth="130"/>
                     <TableColumn fx:id="startPriceColumn" text="Gia khoi diem" prefWidth="130"/>
                     <TableColumn fx:id="currentPriceColumn" text="Gia hien tai" prefWidth="130"/>
+                    <TableColumn fx:id="winnerColumn"
+                                 text="Nguoi dau gia cao nhat"
+                                 prefWidth="180"/>
                     <TableColumn fx:id="statusColumn" text="Trang thai" prefWidth="110"/>
                     <TableColumn fx:id="timeColumn" text="Con lai" prefWidth="90"/>
                 </columns>
@@ -53,26 +57,37 @@
     </center>
 
     <right>
-        <VBox spacing="12" prefWidth="300" styleClass="panel">
-            <padding>
-                <Insets top="14" right="14" bottom="14" left="14"/>
-            </padding>
-            <Label text="Them san pham" styleClass="section-title"/>
-            <Label text="Ten san pham" styleClass="field-label"/>
-            <TextField fx:id="nameField" promptText="Nhap ten san pham"/>
-            <Label text="Loai" styleClass="field-label"/>
-            <ComboBox fx:id="typeCombo" promptText="Chon loai" maxWidth="Infinity"/>
-            <Label text="Gia khoi diem" styleClass="field-label"/>
-            <TextField fx:id="priceField" promptText="Nhap gia ban dau"/>
-            <Label text="Mo ta" styleClass="field-label"/>
-            <TextArea fx:id="descriptionArea" promptText="Nhap mo ta ngan" prefRowCount="4" wrapText="true"/>
-            <Label text="Thoi gian dau gia" styleClass="field-label"/>
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <TextField fx:id="durationField" promptText="VD: 120" prefWidth="120"/>
-                <Label text="giay" styleClass="subtitle"/>
-            </HBox>
-            <Button text="Tao phien dau gia" onAction="#createItem" maxWidth="Infinity" styleClass="primary-button"/>
-        </VBox>
+        <ScrollPane fitToWidth="true" prefWidth="320"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+            <content>
+                <VBox spacing="12" prefWidth="300" styleClass="panel">
+                    <padding>
+                        <Insets top="14" right="14" bottom="14" left="14"/>
+                    </padding>
+                    <Label text="Them san pham" styleClass="section-title"/>
+                    <Label text="Ten san pham" styleClass="field-label"/>
+                    <TextField fx:id="nameField" promptText="Nhap ten san pham"/>
+                    <Label text="Loai" styleClass="field-label"/>
+                    <ComboBox fx:id="typeCombo" promptText="Chon loai" maxWidth="Infinity"/>
+                    <Label text="Gia khoi diem" styleClass="field-label"/>
+                    <TextField fx:id="priceField" promptText="Nhap gia ban dau"/>
+                    <Label text="Mo ta" styleClass="field-label"/>
+                    <TextArea fx:id="descriptionArea" promptText="Nhap mo ta ngan" prefRowCount="4" wrapText="true"/>
+                    <Label text="Thoi gian dau gia" styleClass="field-label"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <TextField fx:id="durationField" promptText="VD: 120" prefWidth="120"/>
+                        <Label text="giay" styleClass="subtitle"/>
+                    </HBox>
+                    <Label text="Hinh anh san pham" styleClass="field-label"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Button text="Chon anh..." onAction="#chooseImage" styleClass="secondary-button"/>
+                        <Label fx:id="imageNameLabel" text="Chua chon" styleClass="subtitle" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <ImageView fx:id="imagePreview" fitWidth="260" fitHeight="150" preserveRatio="true"/>
+                    <Button text="Tao phien dau gia" onAction="#createItem" maxWidth="Infinity" styleClass="primary-button"/>
+                </VBox>
+            </content>
+        </ScrollPane>
     </right>
 
     <bottom>

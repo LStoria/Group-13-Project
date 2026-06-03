@@ -17,6 +17,10 @@ import service.SocketClient;
 import util.MessageFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import java.io.ByteArrayInputStream;
+import java.util.Base64;
 
 public class HomeController {
     @FXML private Label usernameLabel;
@@ -30,6 +34,7 @@ public class HomeController {
     @FXML private TableColumn<AuctionItem, String> statusColumn;
     @FXML private TableColumn<AuctionItem, Number> timeColumn;
     @FXML private TextField bidAmountField;
+    @FXML private ImageView itemImageView;
 
     private final ObservableList<AuctionItem> items = FXCollections.observableArrayList();
     private SocketClient client;
@@ -59,8 +64,22 @@ public class HomeController {
         }
         if (timeColumn != null) {
             timeColumn.setCellValueFactory(data -> data.getValue().timeLeftProperty());
+            itemTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null && newVal.getImageBase64() != null && !newVal.getImageBase64().isEmpty()) {
+                    try {
+                        byte[] bytes = Base64.getDecoder().decode(newVal.getImageBase64());
+                        itemImageView.setImage(new Image(new ByteArrayInputStream(bytes)));
+                    } catch (Exception e) {
+                        itemImageView.setImage(null);
+                    }
+                } else {
+                    itemImageView.setImage(null);
+                }
+            });
         }
         itemTable.setItems(items);
+        // Khi chọn sản phẩm trong bảng thì hiển thị ảnh
+
 
         client.setMessageListener(message -> Platform.runLater(() -> handleServerMessage(message)));
 
@@ -158,7 +177,8 @@ public class HomeController {
                     getString(item, "winner", "-"),
                     getString(item, "seller", ""),
                     getString(item, "status", "ACTIVE"),
-                    getInt(item, "timeLeft", 0)
+                    getInt(item, "timeLeft", 0),
+                    getString(item, "imageBase64", "")
             ));
         }
     }
