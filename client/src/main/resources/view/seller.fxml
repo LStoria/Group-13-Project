@@ -46,6 +46,9 @@
                     <TableColumn fx:id="typeColumn" text="Loai" prefWidth="130"/>
                     <TableColumn fx:id="startPriceColumn" text="Gia khoi diem" prefWidth="130"/>
                     <TableColumn fx:id="currentPriceColumn" text="Gia hien tai" prefWidth="130"/>
+                    <TableColumn fx:id="winnerColumn"
+                                 text="Nguoi dau gia cao nhat"
+                                 prefWidth="180"/>
                     <TableColumn fx:id="statusColumn" text="Trang thai" prefWidth="110"/>
                     <TableColumn fx:id="timeColumn" text="Con lai" prefWidth="90"/>
                 </columns>
