@@ -1,5 +1,7 @@
 package model.auction;
 
+import exception.AuctionExpiredException;
+import exception.InvalidBidException;
 import model.item.Entity;
 import model.item.Item;
 import model.user.User;
@@ -77,23 +79,19 @@ public class Auction extends Entity {
         if (status == AuctionStatus.FINISHED
                 || status == AuctionStatus.CANCELED) {
 
-            throw new IllegalStateException(
-                    "Auction already closed"
-            );
+            throw new IllegalStateException();
         }
 
         if (LocalDateTime.now().isAfter(endTime)) {
 
             status = AuctionStatus.FINISHED;
 
-            throw new IllegalStateException(
-                    "Auction expired"
-            );
+            throw new AuctionExpiredException();
         }
 
         if (bid.getAmount() <= currentPrice) {
 
-            throw new IllegalArgumentException(
+            throw new InvalidBidException(
                     "Bid must be higher than current price"
             );
         }
