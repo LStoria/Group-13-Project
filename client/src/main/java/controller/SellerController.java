@@ -25,6 +25,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.Base64;
 import java.io.ByteArrayInputStream;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
 
 public class SellerController {
     @FXML private Label usernameLabel;
@@ -237,15 +239,44 @@ public class SellerController {
 
     private void handleRealtimeAction(JsonObject json) {
         String action = json.get("action").getAsString();
+
         if ("ITEM_CREATED".equals(action) || "END_AUCTION".equals(action)) {
+
             refreshItems();
+
+        } else if ("UPDATE_PRICE".equals(action)) {
+
+            refreshItems();
+
+            String bidder = json.get("winner").getAsString();
+
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Thông báo đấu giá");
+                alert.setHeaderText("Có người vừa đấu giá");
+                alert.setContentText(
+                        bidder + " vừa đặt giá cho sản phẩm của bạn!"
+                );
+                alert.show();
+            });
+
         } else if ("AUCTION_EXTENDED".equals(action)) {
+
             refreshItems();
-            statusLabel.setText(json.has("message") ? json.get("message").getAsString() : "Phien dau gia duoc gia han!");
+            statusLabel.setText(
+                    json.has("message")
+                            ? json.get("message").getAsString()
+                            : "Phien dau gia duoc gia han!"
+            );
+
         } else if ("TIME_TICK".equals(action) && json.has("items")) {
+
             for (JsonElement element : json.getAsJsonArray("items")) {
                 JsonObject item = element.getAsJsonObject();
-                updateItemTime(item.get("id").getAsInt(), item.get("timeLeft").getAsInt());
+                updateItemTime(
+                        item.get("id").getAsInt(),
+                        item.get("timeLeft").getAsInt()
+                );
             }
         }
     }
