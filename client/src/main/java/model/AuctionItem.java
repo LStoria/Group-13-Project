@@ -9,6 +9,7 @@ import javafx.beans.property.StringProperty;
 
 public class AuctionItem {
     private final IntegerProperty id = new SimpleIntegerProperty();
+    private final StringProperty imageBase64 = new SimpleStringProperty("");
     private final StringProperty name = new SimpleStringProperty();
     private final StringProperty type = new SimpleStringProperty();
     private final DoubleProperty startPrice = new SimpleDoubleProperty();
@@ -22,8 +23,13 @@ public class AuctionItem {
         this(id, name, "", currentPrice, currentPrice, winner, "", "ACTIVE", 0);
     }
 
-    public AuctionItem(int id, String name, String type, double startPrice, double currentPrice, String winner,
-                       String seller, String status, int timeLeft) {
+    public AuctionItem(int id, String name, String type, double startPrice, double currentPrice,
+                       String winner, String seller, String status, int timeLeft) {
+        this(id, name, type, startPrice, currentPrice, winner, seller, status, timeLeft, "");
+    }
+
+    public AuctionItem(int id, String name, String type, double startPrice, double currentPrice,
+                       String winner, String seller, String status, int timeLeft, String imageBase64) {
         this.id.set(id);
         this.name.set(name);
         this.type.set(type);
@@ -33,7 +39,11 @@ public class AuctionItem {
         this.seller.set(seller);
         this.status.set(status);
         this.timeLeft.set(timeLeft);
+        this.imageBase64.set(imageBase64 != null ? imageBase64 : "");
     }
+    public String getImageBase64() { return imageBase64.get(); }
+    public void setImageBase64(String v) { imageBase64.set(v != null ? v : ""); }
+    public StringProperty imageBase64Property() { return imageBase64; }
 
     public int getId() {
         return id.get();
