@@ -95,7 +95,8 @@ public class ClientHandler implements Runnable {
                 double price = request.get("price").getAsDouble();
                 String seller = request.get("seller").getAsString();
                 int duration = request.has("duration") ? request.get("duration").getAsInt() : 120;
-                JsonObject createResponse = AuctionManager.createItem(name, type, price, seller, duration);
+                String imageBase64 = request.has("imageBase64") ? request.get("imageBase64").getAsString() : "";
+                JsonObject createResponse = AuctionManager.createItem(name, type, price, seller, duration, imageBase64);
                 out.println(gson.toJson(createResponse));
                 if ("SUCCESS".equals(createResponse.get("status").getAsString())) {
                     JsonObject event = new JsonObject();
@@ -106,6 +107,10 @@ public class ClientHandler implements Runnable {
                 break;
 
             case "BID":
+                if ("SELLER".equals(currentRole)) {
+                    sendStatus("ERROR", "Seller khong duoc phep dat gia.");
+                    break;
+                }
                 // Trong hàm handleAction của ClientHandler.java
                 if (!request.has("itemId") || !request.has("amount") || !request.has("user")) {
                     sendStatus("ERROR", "Request đặt giá thiếu dữ liệu.");

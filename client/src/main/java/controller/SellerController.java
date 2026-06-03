@@ -18,6 +18,13 @@ import model.AuctionItem;
 import service.SocketClient;
 import util.MessageFactory;
 import javafx.scene.control.TableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Base64;
+import java.io.ByteArrayInputStream;
 
 public class SellerController {
     @FXML private Label usernameLabel;
@@ -35,6 +42,33 @@ public class SellerController {
     @FXML private TextField priceField;
     @FXML private TextField durationField;
     @FXML private TextArea descriptionArea;
+    @FXML private ImageView imagePreview;
+    @FXML private Label imageNameLabel;
+
+    private String selectedImageBase64 = "";
+    @FXML
+    private void chooseImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Chon hinh anh san pham");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Hinh anh", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        File file = fileChooser.showOpenDialog(nameField.getScene().getWindow());
+        if (file != null) {
+            try {
+                if (file.length() > 500 * 1024) { // giới hạn 500KB
+                    statusLabel.setText("Anh qua lon, vui long chon anh duoi 500KB.");
+                    return;
+                }
+                byte[] bytes = Files.readAllBytes(file.toPath());
+                selectedImageBase64 = Base64.getEncoder().encodeToString(bytes);
+                imagePreview.setImage(new Image(file.toURI().toString()));
+                imageNameLabel.setText(file.getName());
+            } catch (Exception e) {
+                statusLabel.setText("Khong the doc file anh.");
+            }
+        }
+    }
 
 
     private final ObservableList<AuctionItem> items = FXCollections.observableArrayList();
@@ -81,6 +115,21 @@ public class SellerController {
 
         client.setMessageListener(message -> Platform.runLater(() -> handleServerMessage(message)));
         refreshItems();
+        itemTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && newVal.getImageBase64() != null && !newVal.getImageBase64().isEmpty()) {
+                try {
+                    byte[] bytes = Base64.getDecoder().decode(newVal.getImageBase64());
+                    imagePreview.setImage(new Image(new ByteArrayInputStream(bytes)));
+                    imageNameLabel.setText("Anh hien tai");
+                } catch (Exception e) {
+                    imagePreview.setImage(null);
+                    imageNameLabel.setText("Khong co anh");
+                }
+            } else {
+                imagePreview.setImage(null);
+                imageNameLabel.setText("Chua chon");
+            }
+        });
     }
 
     @FXML
@@ -116,18 +165,18 @@ public class SellerController {
             }
         }
 
-        client.sendRequest(MessageFactory.createItemRequest(name, type, price, client.getUsername(), duration));
+        client.sendRequest(MessageFactory.createItemRequest(name, type, price, client.getUsername(), duration, selectedImageBase64));
+// Reset ảnh sau khi tạo
+        selectedImageBase64 = "";
+        imagePreview.setImage(null);
+        imageNameLabel.setText("Chua chon");
         descriptionArea.clear();
         durationField.clear();
     }
 
     @FXML
     private void openBidderView() {
-        try {
-            MainApp.showHome();
-        } catch (Exception ex) {
-            statusLabel.setText("Khong mo duoc man hinh dau gia.");
-        }
+        statusLabel.setText("Seller khong duoc phep tham gia dau gia.");
     }
 
     @FXML
@@ -176,7 +225,8 @@ public class SellerController {
                     getString(item, "winner", "-"),
                     getString(item, "seller", ""),
                     getString(item, "status", "ACTIVE"),
-                    getInt(item, "timeLeft", 0)
+                    getInt(item, "timeLeft", 0),
+                    getString(item, "imageBase64", "")
             ));
         }
     }
