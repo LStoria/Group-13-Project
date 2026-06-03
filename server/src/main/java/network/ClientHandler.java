@@ -94,7 +94,8 @@ public class ClientHandler implements Runnable {
                 String type = request.has("type") ? request.get("type").getAsString() : "Other";
                 double price = request.get("price").getAsDouble();
                 String seller = request.get("seller").getAsString();
-                JsonObject createResponse = AuctionManager.createItem(name, type, price, seller);
+                int duration = request.has("duration") ? request.get("duration").getAsInt() : 120;
+                JsonObject createResponse = AuctionManager.createItem(name, type, price, seller, duration);
                 out.println(gson.toJson(createResponse));
                 if ("SUCCESS".equals(createResponse.get("status").getAsString())) {
                     JsonObject event = new JsonObject();

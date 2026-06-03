@@ -32,6 +32,7 @@ public class SellerController {
     @FXML private TextField nameField;
     @FXML private ComboBox<String> typeCombo;
     @FXML private TextField priceField;
+    @FXML private TextField durationField;
     @FXML private TextArea descriptionArea;
 
     private final ObservableList<AuctionItem> items = FXCollections.observableArrayList();
@@ -76,8 +77,24 @@ public class SellerController {
             return;
         }
 
-        client.sendRequest(MessageFactory.createItemRequest(name, type, price, client.getUsername()));
+        int duration = 120; // mặc định 120 giây
+        String durationText = durationField.getText().trim();
+        if (!durationText.isEmpty()) {
+            try {
+                duration = Integer.parseInt(durationText);
+                if (duration <= 0) {
+                    statusLabel.setText("Thoi gian dau gia phai lon hon 0 giay.");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                statusLabel.setText("Thoi gian dau gia khong hop le.");
+                return;
+            }
+        }
+
+        client.sendRequest(MessageFactory.createItemRequest(name, type, price, client.getUsername(), duration));
         descriptionArea.clear();
+        durationField.clear();
     }
 
     @FXML

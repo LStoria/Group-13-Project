@@ -111,6 +111,10 @@ public class AuctionManager {
     }
 
     public static synchronized JsonObject createItem(String name, String type, double startPrice, String seller) {
+        return createItem(name, type, startPrice, seller, DEFAULT_AUCTION_SECONDS);
+    }
+
+    public static synchronized JsonObject createItem(String name, String type, double startPrice, String seller, int durationSeconds) {
         JsonObject response = new JsonObject();
         if (name == null || name.isBlank()) {
             response.addProperty("status", "ERROR");
@@ -122,15 +126,18 @@ public class AuctionManager {
             response.addProperty("message", "Giá khởi điểm phải lớn hơn 0.");
             return response;
         }
-
-        Item item = addItem(name.trim(), normalizeType(type), startPrice, seller);
+        if (durationSeconds <= 0) {
+            response.addProperty("status", "ERROR");
+            response.addProperty("message", "Thời gian đấu giá phải lớn hơn 0 giây.");
+            return response;
+        }
+        Item item = addItem(name.trim(), normalizeType(type), startPrice, seller, durationSeconds);
         response.addProperty("status", "SUCCESS");
         response.addProperty("message", "Tạo sản phẩm đấu giá thành công.");
         response.add("item", item.toJson());
         saveData();
         return response;
     }
-
     public static synchronized boolean updateBid(int itemId, double bidAmount, String username) {
         for (Item item : items) {
             if (item.id == itemId) {
@@ -146,8 +153,8 @@ public class AuctionManager {
         return false; // Không tìm thấy sản phẩm
     }
 
-    private static Item addItem(String name, String type, double price, String seller) {
-        Item item = new Item(nextItemId++, name, type, price, seller);
+    private static Item addItem(String name, String type, double price, String seller, int durationSeconds) {
+        Item item = new Item(nextItemId++, name, type, price, seller, durationSeconds);
         items.add(item);
         return item;
     }
@@ -218,10 +225,9 @@ public class AuctionManager {
         users.put("admin", new UserAccount("admin", hashPassword("admin"), "ADMIN"));
         users.put("seller", new UserAccount("seller", hashPassword("seller"), "SELLER"));
         users.put("bidder", new UserAccount("bidder", hashPassword("bidder"), "BIDDER"));
-        addItem("Laptop Dell XPS", "Electronics", 1500.0, "seller");
-        addItem("iPhone 15 Pro", "Electronics", 1000.0, "seller");
+        addItem("Laptop Dell XPS", "Electronics", 1500.0, "seller", 120);
+        addItem("iPhone 15 Pro", "Electronics", 1000.0, "seller", 120);
     }
-
     private static void ensureSeedData() {
         boolean changed = false;
         if (!users.containsKey("admin")) {
@@ -237,8 +243,8 @@ public class AuctionManager {
             changed = true;
         }
         if (items.isEmpty()) {
-            addItem("Laptop Dell XPS", "Electronics", 1500.0, "seller");
-            addItem("iPhone 15 Pro", "Electronics", 1000.0, "seller");
+            addItem("Laptop Dell XPS", "Electronics", 1500.0, "seller", 120);
+            addItem("iPhone 15 Pro", "Electronics", 1000.0, "seller", 120);
             changed = true;
         }
         if (changed) {
@@ -313,6 +319,10 @@ public class AuctionManager {
         public int timeLeft = DEFAULT_AUCTION_SECONDS;
 
         public Item(int id, String name, String type, double price, String seller) {
+            this(id, name, type, price, seller, DEFAULT_AUCTION_SECONDS);
+        }
+
+        public Item(int id, String name, String type, double price, String seller, int durationSeconds) {
             this.id = id;
             this.name = name;
             this.type = type;
@@ -320,6 +330,7 @@ public class AuctionManager {
             this.currentPrice = price;
             this.seller = seller;
             this.winner = "";
+            this.timeLeft = durationSeconds;
         }
 
         private JsonObject toJson() {

@@ -66,6 +66,11 @@
             <TextField fx:id="priceField" promptText="Nhap gia ban dau"/>
             <Label text="Mo ta" styleClass="field-label"/>
             <TextArea fx:id="descriptionArea" promptText="Nhap mo ta ngan" prefRowCount="4" wrapText="true"/>
+            <Label text="Thoi gian dau gia" styleClass="field-label"/>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <TextField fx:id="durationField" promptText="VD: 120" prefWidth="120"/>
+                <Label text="giay" styleClass="subtitle"/>
+            </HBox>
             <Button text="Tao phien dau gia" onAction="#createItem" maxWidth="Infinity" styleClass="primary-button"/>
         </VBox>
     </right>
