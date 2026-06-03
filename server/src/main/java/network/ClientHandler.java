@@ -9,8 +9,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientHandler implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
     private final Socket socket;
 
     // Đưa PrintWriter ra ngoài để hàm sendMessage() có thể sử dụng được
@@ -41,7 +44,7 @@ public class ClientHandler implements Runnable {
             String inputLine;
             // 2. VÒNG LẶP LẮNG NGHE: Liên tục đọc tin nhắn Client gửi lên
             while ((inputLine = in.readLine()) != null) {
-                System.out.println("📩 Nhận từ client: " + inputLine);
+                logger.info("📩 Nhận từ client: {}", inputLine);
 
                 try {
                     // Dùng Gson để chuyển chuỗi thành đối tượng JSON
@@ -54,12 +57,14 @@ public class ClientHandler implements Runnable {
                         sendStatus("ERROR", "Request thiếu action.");
                     }
                 } catch (Exception e) {
-                    System.err.println("❌ Lỗi sai định dạng JSON từ Client.");
+                    logger.warn("Lỗi sai định dạng JSON từ Client: {}", e.getMessage());
+                    logger.debug("JSON parsing exception", e);
                     sendStatus("ERROR", "Dữ liệu gửi lên không hợp lệ.");
                 }
             }
         } catch (IOException e) {
-            System.out.println("⚠️ Client đột ngột ngắt kết nối: " + socket.getInetAddress().getHostAddress());
+            logger.warn("Client đột ngột ngắt kết nối: {}", socket.getInetAddress().getHostAddress());
+            logger.debug("IOException in ClientHandler", e);
         } finally {
             // 3. DỌN DẸP: Khi Client tắt app, bắt buộc phải xóa khỏi danh sách Server
             cleanUp();
@@ -177,13 +182,13 @@ public class ClientHandler implements Runnable {
         try {
             // CỰC KỲ QUAN TRỌNG: Gọi ngược lại class AuctionServer để xóa tên khỏi danh sách
             AuctionServer.clients.remove(this);
-            System.out.println("🧹 Đã xóa client. Số người đang online: " + AuctionServer.clients.size());
+            logger.info("🧹 Đã xóa client. Số người đang online: {}", AuctionServer.clients.size());
 
             if (in != null) in.close();
             if (out != null) out.close();
             if (socket != null && !socket.isClosed()) socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Loi khi don dep client", e);
         }
     }
 }

@@ -81,6 +81,8 @@ public class LoginController {
                     client.sendRequest(MessageFactory.registerRequest(username, password, roleCombo.getValue()));
                 }
             } catch (Exception ex) {
+                org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoginController.class);
+                logger.error("Error during connectAndSend", ex);
                 Platform.runLater(() -> {
                     loginButton.setDisable(false);
                     registerButton.setDisable(false);
@@ -121,6 +123,8 @@ public class LoginController {
                 MainApp.showHome();
             }
         } catch (Exception ex) {
+            org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoginController.class);
+            logger.error("Error handling auth response", ex);
             loginButton.setDisable(false);
             registerButton.setDisable(false);
             statusLabel.setText("Phan hoi dang nhap khong hop le.");

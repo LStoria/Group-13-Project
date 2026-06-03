@@ -4,10 +4,13 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Deadcode?
 
 public class AuctionClient {
+    private static final Logger logger = LoggerFactory.getLogger(AuctionClient.class);
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
@@ -29,7 +32,8 @@ public class AuctionClient {
                     onMessageReceived.accept(response);
                 }
             } catch (IOException e) {
-                System.err.println("Mất kết nối từ Server: " + e.getMessage());
+            logger.warn("Mất kết nối từ Server: {}", e.getMessage());
+            logger.debug("IOException in AuctionClient listener", e);
             } finally {
                 closeConnection();
             }
@@ -58,7 +62,7 @@ public class AuctionClient {
             if (out != null) out.close();
             if (in != null) in.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error closing client connection", e);
         }
     }
 }
