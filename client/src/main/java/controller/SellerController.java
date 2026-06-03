@@ -44,6 +44,7 @@ public class SellerController {
     @FXML private TextArea descriptionArea;
     @FXML private ImageView imagePreview;
     @FXML private Label imageNameLabel;
+    @FXML private TableColumn<AuctionItem, String> winnerColumn;
 
     private String selectedImageBase64 = "";
     @FXML
@@ -86,6 +87,9 @@ public class SellerController {
         nameColumn.setCellValueFactory(data -> data.getValue().nameProperty());
         typeColumn.setCellValueFactory(data -> data.getValue().typeProperty());
         startPriceColumn.setCellValueFactory(data -> data.getValue().startPriceProperty());
+        winnerColumn.setCellValueFactory(
+                cellData -> cellData.getValue().winnerProperty()
+        );
         currentPriceColumn.setCellValueFactory(data -> data.getValue().currentPriceProperty());
         startPriceColumn.setCellFactory(col -> new TableCell<>() {
             @Override
