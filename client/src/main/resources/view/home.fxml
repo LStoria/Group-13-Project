@@ -22,6 +22,7 @@
             </padding>
             <Label text="Auction Room" styleClass="title"/>
             <Label fx:id="usernameLabel" styleClass="subtitle"/>
+            <Button fx:id="goToSellerButton" text="Quan ly san pham" onAction="#handleGoToSeller" styleClass="secondary-button" visible="false" managed="false"/>
             <Button text="Tai lai" onAction="#refreshItems" styleClass="secondary-button"/>
             <Button text="Dang xuat" onAction="#handleLogout" styleClass="danger-button"/>
         </HBox>

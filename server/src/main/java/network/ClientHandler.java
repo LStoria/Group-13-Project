@@ -12,9 +12,9 @@ import java.nio.charset.StandardCharsets;
 
 public class ClientHandler implements Runnable {
     private final Socket socket;
-    
+
     // Đưa PrintWriter ra ngoài để hàm sendMessage() có thể sử dụng được
-    private PrintWriter out; 
+    private PrintWriter out;
     private BufferedReader in;
     private final Gson gson = new Gson();
     private boolean authenticated;
@@ -46,7 +46,7 @@ public class ClientHandler implements Runnable {
                 try {
                     // Dùng Gson để chuyển chuỗi thành đối tượng JSON
                     JsonObject request = gson.fromJson(inputLine, JsonObject.class);
-                    
+
                     if (request.has("action")) {
                         String action = request.get("action").getAsString();
                         handleAction(action, request); // Gọi hàm xử lý điều hướng
@@ -103,7 +103,7 @@ public class ClientHandler implements Runnable {
                     AuctionServer.broadcast(gson.toJson(event));
                 }
                 break;
-                
+
             case "BID":
                 // Trong hàm handleAction của ClientHandler.java
                 if (!request.has("itemId") || !request.has("amount") || !request.has("user")) {
@@ -125,24 +125,6 @@ public class ClientHandler implements Runnable {
                     sendStatus("SUCCESS", "Đặt giá thành công!");
                 } else {
                     sendStatus("ERROR", "Giá đặt phải cao hơn giá hiện tại hoặc sản phẩm không tồn tại!");
-                }
-
-                // Đảm bảo tại một thời điểm chỉ 1 luồng được xử lý món hàng này
-                synchronized (AuctionManager.items) {
-                    for (AuctionManager.Item item : AuctionManager.items) {
-                        if (item.id == itemId) {
-                            if (bidAmount > item.currentPrice) {
-                                item.currentPrice = bidAmount;
-                                item.winner = username;
-
-                                // Thông báo giá mới cho tất cả mọi người
-                                AuctionServer.broadcast("{\"action\":\"UPDATE\", \"price\":" + bidAmount + "}");
-                            } else {
-                                sendMessage("{\"status\":\"FAILED\", \"reason\":\"Giá quá thấp!\"}");
-                            }
-                            break;
-                        }
-                    }
                 }
                 break;
 
@@ -169,7 +151,7 @@ public class ClientHandler implements Runnable {
                 usersResponse.add("users", gson.fromJson(AuctionManager.getUsersJson(), com.google.gson.JsonArray.class));
                 out.println(gson.toJson(usersResponse));
                 break;
-                
+
             default:
                 sendStatus("ERROR", "Hành động không được hỗ trợ.");
         }
@@ -188,7 +170,7 @@ public class ClientHandler implements Runnable {
             // CỰC KỲ QUAN TRỌNG: Gọi ngược lại class AuctionServer để xóa tên khỏi danh sách
             AuctionServer.clients.remove(this);
             System.out.println("🧹 Đã xóa client. Số người đang online: " + AuctionServer.clients.size());
-            
+
             if (in != null) in.close();
             if (out != null) out.close();
             if (socket != null && !socket.isClosed()) socket.close();

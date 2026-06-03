@@ -1,6 +1,7 @@
 package repository.memory;
 
 import model.auction.Auction;
+import model.auction.BidTransaction;
 import repository.repointerface.AuctionRepository;
 
 import java.util.ArrayList;
@@ -61,6 +62,25 @@ public class InMemoryAuctionRepository implements AuctionRepository {
 
     public boolean existsById(Long id) {
         return auctions.containsKey(id);
+    }
+
+    @Override
+    public void placeBid(
+            Long auctionId,
+            BidTransaction bid
+    ) {
+
+        Auction auction =
+                auctions.get(auctionId);
+
+        if (auction == null) {
+
+            throw new IllegalArgumentException(
+                    "Auction not found"
+            );
+        }
+
+        auction.placeBid(bid);
     }
 
 }

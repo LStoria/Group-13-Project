@@ -4,6 +4,7 @@ import database.DatabaseManager;
 
 import model.auction.Auction;
 import model.auction.AuctionStatus;
+import model.auction.BidTransaction;
 import model.item.Item;
 import model.user.User;
 
@@ -307,6 +308,26 @@ public class SQLiteAuctionRepository implements AuctionRepository {
         );
 
         return auction;
+    }
+
+    @Override
+    public void placeBid(
+            Long auctionId,
+            BidTransaction bid
+    ) {
+
+        Auction auction =
+                findById(auctionId)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException(
+                                                "Auction not found"
+                                        )
+                        );
+
+        auction.placeBid(bid);
+
+        update(auction);
     }
 
 }
