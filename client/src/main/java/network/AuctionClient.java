@@ -5,6 +5,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
+// Deadcode?
+
 public class AuctionClient {
     private Socket socket;
     private PrintWriter out;

@@ -1,6 +1,7 @@
 package repository.repointerface;
 
 import model.auction.Auction;
+import model.auction.BidTransaction;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,5 +19,7 @@ public interface AuctionRepository {
     void update(Auction auction);
 
     boolean existsById(Long id);
+
+    void placeBid(Long auctionId, BidTransaction bid);
 
 }
