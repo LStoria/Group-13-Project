@@ -133,6 +133,7 @@ public class ClientHandler implements Runnable {
                     update.addProperty("itemId", itemId);
                     update.addProperty("price", bidAmount);
                     update.addProperty("winner", username);
+                    update.addProperty("bidder", username);
                     update.addProperty("timeLeft", currentTimeLeft);
                     AuctionServer.broadcast(gson.toJson(update));
                     sendStatus("SUCCESS", "Đặt giá thành công!");
