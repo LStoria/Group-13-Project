@@ -280,7 +280,7 @@ public class AuctionManager {
         }
     }
 
-    private static void saveData() {
+    private static synchronized void saveData() {
         if (!PERSISTENCE_ENABLED) {
             return;
         }

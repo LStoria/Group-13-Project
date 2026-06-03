@@ -13,8 +13,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SQLiteBidTransactionRepository implements BidTransactionRepository {
+    private static final Logger logger = LoggerFactory.getLogger(SQLiteBidTransactionRepository.class);
 
     private final SQLiteAuctionRepository auctionRepository =
             new SQLiteAuctionRepository();
@@ -79,7 +82,7 @@ public class SQLiteBidTransactionRepository implements BidTransactionRepository 
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteBidTransactionRepository.save failed", e);
         }
     }
 
@@ -110,7 +113,7 @@ public class SQLiteBidTransactionRepository implements BidTransactionRepository 
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteBidTransactionRepository.findById failed", e);
         }
 
         return Optional.empty();
@@ -144,7 +147,7 @@ public class SQLiteBidTransactionRepository implements BidTransactionRepository 
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteBidTransactionRepository.findAll failed", e);
         }
 
         return bids;
@@ -196,7 +199,7 @@ public class SQLiteBidTransactionRepository implements BidTransactionRepository 
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteBidTransactionRepository.update failed", e);
         }
     }
 
@@ -219,7 +222,7 @@ public class SQLiteBidTransactionRepository implements BidTransactionRepository 
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteBidTransactionRepository.delete failed", e);
         }
     }
 
