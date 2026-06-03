@@ -30,7 +30,11 @@ public class MessageFactory {
     }
 
     public static String createItemRequest(String name, String type, double price, String seller) {
-        return toJson(new CreateItemRequest(name, type, price, seller));
+        return toJson(new CreateItemRequest(name, type, price, seller, 120));
+    }
+
+    public static String createItemRequest(String name, String type, double price, String seller, int durationSeconds) {
+        return toJson(new CreateItemRequest(name, type, price, seller, durationSeconds));
     }
 
     public static String toJson(Object request) {
@@ -68,9 +72,9 @@ public class MessageFactory {
         }
     }
 
-    private record CreateItemRequest(String action, String name, String type, double price, String seller) {
-        private CreateItemRequest(String name, String type, double price, String seller) {
-            this("CREATE_ITEM", name, type, price, seller);
+    private record CreateItemRequest(String action, String name, String type, double price, String seller, int duration) {
+        private CreateItemRequest(String name, String type, double price, String seller, int duration) {
+            this("CREATE_ITEM", name, type, price, seller, duration);
         }
     }
 }

@@ -1,0 +1,204 @@
+{
+  "nextItemId": 13,
+  "items": [
+    {
+      "id": 1,
+      "name": "Laptop Dell XPS",
+      "type": "Electronics",
+      "startPrice": 1500.0,
+      "currentPrice": 2000.0,
+      "winner": "bidder",
+      "seller": "seller",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 2,
+      "name": "iPhone 15 Pro",
+      "type": "Electronics",
+      "startPrice": 1000.0,
+      "currentPrice": 1000.0,
+      "winner": "",
+      "seller": "seller",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 3,
+      "name": "messi",
+      "type": "Electronics",
+      "startPrice": 200.0,
+      "currentPrice": 200.0,
+      "winner": "",
+      "seller": "atizi",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 4,
+      "name": "toai",
+      "type": "Electronics",
+      "startPrice": 1000.0,
+      "currentPrice": 1.0E10,
+      "winner": "toaimanh16",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 5,
+      "name": "nem chua",
+      "type": "Electronics",
+      "startPrice": 1000.0,
+      "currentPrice": 2000.0,
+      "winner": "toaimanh",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 6,
+      "name": "chả cá",
+      "type": "Art",
+      "startPrice": 10000.0,
+      "currentPrice": 20000.0,
+      "winner": "toaimanh",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 7,
+      "name": "toai",
+      "type": "Electronics",
+      "startPrice": 10000.0,
+      "currentPrice": 300000.0,
+      "winner": "toaimanh",
+      "seller": "toaimanh16",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 8,
+      "name": "bánh rán",
+      "type": "Art",
+      "startPrice": 100000.0,
+      "currentPrice": 1.0E7,
+      "winner": "toaimanh16",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 9,
+      "name": "bánh cà",
+      "type": "Electronics",
+      "startPrice": 10000.0,
+      "currentPrice": 2000000.0,
+      "winner": "1234",
+      "seller": "toaimanh16",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 10,
+      "name": "bánh gói",
+      "type": "Electronics",
+      "startPrice": 1000.0,
+      "currentPrice": 30000.0,
+      "winner": "5555",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 11,
+      "name": "bánh gạo",
+      "type": "Art",
+      "startPrice": 1000.0,
+      "currentPrice": 100000.0,
+      "winner": "toaimanh",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 12,
+      "name": "toai",
+      "type": "Electronics",
+      "startPrice": 10.0,
+      "currentPrice": 9000.0,
+      "winner": "1112",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    }
+  ],
+  "users": [
+    {
+      "username": "seller",
+      "passwordHash": "a4279eae47aaa7417da62434795a011ccb0ec870f7f56646d181b5500a892a9a",
+      "role": "SELLER"
+    },
+    {
+      "username": "bidder",
+      "passwordHash": "5f649e2ee6efd9c7110d8655b9ef5e6dd5a7afc65baca6740efc39da05209779",
+      "role": "BIDDER"
+    },
+    {
+      "username": "atizi",
+      "passwordHash": "957b4de48fd8d8a83cc5be1ca9d34338fd748a3b16f96ba286894f220eb67a63",
+      "role": "SELLER"
+    },
+    {
+      "username": "toaimanh16",
+      "passwordHash": "8f253ac870e8b84b4587a7a1ee0ea02da6ba42013bfc0ac15118e6debd541349",
+      "role": "SELLER"
+    },
+    {
+      "username": "admin",
+      "passwordHash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+      "role": "ADMIN"
+    },
+    {
+      "username": "toaimanh",
+      "passwordHash": "839c63372259a6630c398587de049b1e8ce168b98545438bf2a50d0538731e89",
+      "role": "SELLER"
+    },
+    {
+      "username": "1234",
+      "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+      "role": "BIDDER"
+    },
+    {
+      "username": "1212",
+      "passwordHash": "cbfad02f9ed2a8d1e08d8f74f5303e9eb93637d47f82ab6f1c15871cf8dd0481",
+      "role": "BIDDER"
+    },
+    {
+      "username": "1233",
+      "passwordHash": "30bc0a114420f0d47a28efdd05dd389dd8633700d22c0b6fb815ee17fa95efc0",
+      "role": "BIDDER"
+    },
+    {
+      "username": "1112",
+      "passwordHash": "cbfad02f9ed2a8d1e08d8f74f5303e9eb93637d47f82ab6f1c15871cf8dd0481",
+      "role": "BIDDER"
+    },
+    {
+      "username": "5555",
+      "passwordHash": "c1f330d0aff31c1c87403f1e4347bcc21aff7c179908723535f2b31723702525",
+      "role": "BIDDER"
+    },
+    {
+      "username": "11111",
+      "passwordHash": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
+      "role": "BIDDER"
+    },
+    {
+      "username": "atizii",
+      "passwordHash": "2c47932a685f40a529df1d16cbd150c82415605ab12c5d8f85a7e9a63b32b1d3",
+      "role": "SELLER"
+    }
+  ]
+}

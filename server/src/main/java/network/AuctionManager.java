@@ -111,6 +111,10 @@ public class AuctionManager {
     }
 
     public static synchronized JsonObject createItem(String name, String type, double startPrice, String seller) {
+        return createItem(name, type, startPrice, seller, DEFAULT_AUCTION_SECONDS);
+    }
+
+    public static synchronized JsonObject createItem(String name, String type, double startPrice, String seller, int durationSeconds) {
         JsonObject response = new JsonObject();
         if (name == null || name.isBlank()) {
             response.addProperty("status", "ERROR");
@@ -122,14 +126,20 @@ public class AuctionManager {
             response.addProperty("message", "Giá khởi điểm phải lớn hơn 0.");
             return response;
         }
-
-        Item item = addItem(name.trim(), normalizeType(type), startPrice, seller);
+        if (durationSeconds <= 0) {
+            response.addProperty("status", "ERROR");
+            response.addProperty("message", "Thời gian đấu giá phải lớn hơn 0 giây.");
+            return response;
+        }
+        Item item = addItem(name.trim(), normalizeType(type), startPrice, seller, durationSeconds);
         response.addProperty("status", "SUCCESS");
         response.addProperty("message", "Tạo sản phẩm đấu giá thành công.");
         response.add("item", item.toJson());
         saveData();
         return response;
     }
+    private static final int EXTEND_THRESHOLD_SECONDS = 20; // ngưỡng kích hoạt gia hạn
+    private static final int EXTEND_DURATION_SECONDS = 20;  // số giây gia hạn thêm
 
     public static synchronized boolean updateBid(int itemId, double bidAmount, String username) {
         for (Item item : items) {
@@ -137,17 +147,34 @@ public class AuctionManager {
                 if ("ACTIVE".equals(item.status) && bidAmount > item.currentPrice) {
                     item.currentPrice = bidAmount;
                     item.winner = username;
+                    // Nếu còn <= 15 giây thì gia hạn thêm 15 giây
+                    if (item.timeLeft <= 15) {
+                        item.timeLeft = 15;
+                        JsonObject event = new JsonObject();
+                        event.addProperty("action", "AUCTION_EXTENDED");
+                        event.addProperty("itemId", item.id);
+                        event.addProperty("timeLeft", item.timeLeft);
+                        event.addProperty("message", "Co nguoi dau gia! Phien duoc gia han them 15 giay.");
+                        AuctionServer.broadcast(event.toString());
+                    }
                     saveData();
                     return true;
                 }
                 return false;
             }
         }
-        return false; // Không tìm thấy sản phẩm
+        return false;
     }
-
-    private static Item addItem(String name, String type, double price, String seller) {
-        Item item = new Item(nextItemId++, name, type, price, seller);
+    public static synchronized int getItemTimeLeft(int itemId) {
+        for (Item item : items) {
+            if (item.id == itemId) {
+                return item.timeLeft;
+            }
+        }
+        return 0;
+    }
+    private static Item addItem(String name, String type, double price, String seller, int durationSeconds) {
+        Item item = new Item(nextItemId++, name, type, price, seller, durationSeconds);
         items.add(item);
         return item;
     }
@@ -218,10 +245,9 @@ public class AuctionManager {
         users.put("admin", new UserAccount("admin", hashPassword("admin"), "ADMIN"));
         users.put("seller", new UserAccount("seller", hashPassword("seller"), "SELLER"));
         users.put("bidder", new UserAccount("bidder", hashPassword("bidder"), "BIDDER"));
-        addItem("Laptop Dell XPS", "Electronics", 1500.0, "seller");
-        addItem("iPhone 15 Pro", "Electronics", 1000.0, "seller");
+        addItem("Laptop Dell XPS", "Electronics", 1500.0, "seller", 120);
+        addItem("iPhone 15 Pro", "Electronics", 1000.0, "seller", 120);
     }
-
     private static void ensureSeedData() {
         boolean changed = false;
         if (!users.containsKey("admin")) {
@@ -237,8 +263,8 @@ public class AuctionManager {
             changed = true;
         }
         if (items.isEmpty()) {
-            addItem("Laptop Dell XPS", "Electronics", 1500.0, "seller");
-            addItem("iPhone 15 Pro", "Electronics", 1000.0, "seller");
+            addItem("Laptop Dell XPS", "Electronics", 1500.0, "seller", 120);
+            addItem("iPhone 15 Pro", "Electronics", 1000.0, "seller", 120);
             changed = true;
         }
         if (changed) {
@@ -313,6 +339,10 @@ public class AuctionManager {
         public int timeLeft = DEFAULT_AUCTION_SECONDS;
 
         public Item(int id, String name, String type, double price, String seller) {
+            this(id, name, type, price, seller, DEFAULT_AUCTION_SECONDS);
+        }
+
+        public Item(int id, String name, String type, double price, String seller, int durationSeconds) {
             this.id = id;
             this.name = name;
             this.type = type;
@@ -320,6 +350,7 @@ public class AuctionManager {
             this.currentPrice = price;
             this.seller = seller;
             this.winner = "";
+            this.timeLeft = durationSeconds;
         }
 
         private JsonObject toJson() {

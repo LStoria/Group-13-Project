@@ -94,7 +94,8 @@ public class ClientHandler implements Runnable {
                 String type = request.has("type") ? request.get("type").getAsString() : "Other";
                 double price = request.get("price").getAsDouble();
                 String seller = request.get("seller").getAsString();
-                JsonObject createResponse = AuctionManager.createItem(name, type, price, seller);
+                int duration = request.has("duration") ? request.get("duration").getAsInt() : 120;
+                JsonObject createResponse = AuctionManager.createItem(name, type, price, seller, duration);
                 out.println(gson.toJson(createResponse));
                 if ("SUCCESS".equals(createResponse.get("status").getAsString())) {
                     JsonObject event = new JsonObject();
@@ -115,12 +116,14 @@ public class ClientHandler implements Runnable {
                 String username = request.get("user").getAsString();
 
                 if (AuctionManager.updateBid(itemId, bidAmount, username)) {
-                    // Thông báo cho TẤT CẢ mọi người về mức giá mới
+                    // Lấy timeLeft hiện tại sau khi đã gia hạn (nếu có)
+                    int currentTimeLeft = AuctionManager.getItemTimeLeft(itemId);
                     JsonObject update = new JsonObject();
                     update.addProperty("action", "UPDATE_PRICE");
                     update.addProperty("itemId", itemId);
                     update.addProperty("price", bidAmount);
                     update.addProperty("winner", username);
+                    update.addProperty("timeLeft", currentTimeLeft);
                     AuctionServer.broadcast(gson.toJson(update));
                     sendStatus("SUCCESS", "Đặt giá thành công!");
                 } else {

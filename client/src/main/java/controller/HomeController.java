@@ -16,6 +16,7 @@ import model.AuctionItem;
 import service.SocketClient;
 import util.MessageFactory;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 
 public class HomeController {
     @FXML private Label usernameLabel;
@@ -41,6 +42,17 @@ public class HomeController {
         idColumn.setCellValueFactory(data -> data.getValue().idProperty());
         nameColumn.setCellValueFactory(data -> data.getValue().nameProperty());
         priceColumn.setCellValueFactory(data -> data.getValue().currentPriceProperty());
+        priceColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%,.0f VND", value.doubleValue()));
+                }
+            }
+        });
         winnerColumn.setCellValueFactory(data -> data.getValue().winnerProperty());
         if (statusColumn != null) {
             statusColumn.setCellValueFactory(data -> data.getValue().statusProperty());
@@ -158,6 +170,10 @@ public class HomeController {
             double price = json.get("price").getAsDouble();
             String winner = json.get("winner").getAsString();
             updateItem(itemId, price, winner);
+            // Cập nhật timeLeft nếu có (sau khi gia hạn)
+            if (json.has("timeLeft")) {
+                updateItemTime(itemId, json.get("timeLeft").getAsInt());
+            }
             statusLabel.setText("Gia san pham #" + itemId + " vua duoc cap nhat.");
         } else if ("END".equals(action) || "END_AUCTION".equals(action)) {
             if (json.has("item") && json.get("item").isJsonObject()) {
@@ -172,6 +188,11 @@ public class HomeController {
             }
         } else if ("ITEM_CREATED".equals(action)) {
             refreshItems();
+        } else if ("AUCTION_EXTENDED".equals(action)) {
+            int itemId = json.get("itemId").getAsInt();
+            int timeLeft = json.get("timeLeft").getAsInt();
+            updateItemTime(itemId, timeLeft);
+            statusLabel.setText(json.has("message") ? json.get("message").getAsString() : "Phien dau gia duoc gia han!");
         }
     }
 
