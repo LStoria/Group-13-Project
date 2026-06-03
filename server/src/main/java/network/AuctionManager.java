@@ -111,10 +111,12 @@ public class AuctionManager {
     }
 
     public static synchronized JsonObject createItem(String name, String type, double startPrice, String seller) {
-        return createItem(name, type, startPrice, seller, DEFAULT_AUCTION_SECONDS);
+        return createItem(name, type, startPrice, seller, DEFAULT_AUCTION_SECONDS, "");
     }
 
-    public static synchronized JsonObject createItem(String name, String type, double startPrice, String seller, int durationSeconds) {
+    public static synchronized JsonObject createItem(String name, String type, double startPrice,
+                                                     String seller, int durationSeconds, String imageBase64) {
+        // validation giống như createItem cũ
         JsonObject response = new JsonObject();
         if (name == null || name.isBlank()) {
             response.addProperty("status", "ERROR");
@@ -131,7 +133,9 @@ public class AuctionManager {
             response.addProperty("message", "Thời gian đấu giá phải lớn hơn 0 giây.");
             return response;
         }
-        Item item = addItem(name.trim(), normalizeType(type), startPrice, seller, durationSeconds);
+        Item item = new Item(nextItemId++, name.trim(), normalizeType(type),
+                startPrice, seller, durationSeconds, imageBase64);
+        items.add(item);
         response.addProperty("status", "SUCCESS");
         response.addProperty("message", "Tạo sản phẩm đấu giá thành công.");
         response.add("item", item.toJson());
@@ -174,7 +178,11 @@ public class AuctionManager {
         return 0;
     }
     private static Item addItem(String name, String type, double price, String seller, int durationSeconds) {
-        Item item = new Item(nextItemId++, name, type, price, seller, durationSeconds);
+        return addItem(name, type, price, seller, durationSeconds, "");
+    }
+
+    private static Item addItem(String name, String type, double price, String seller, int durationSeconds, String imageBase64) {
+        Item item = new Item(nextItemId++, name, type, price, seller, durationSeconds, imageBase64);
         items.add(item);
         return item;
     }
@@ -336,13 +344,15 @@ public class AuctionManager {
         public String winner;
         public String seller;
         public String status = "ACTIVE";
-        public int timeLeft = DEFAULT_AUCTION_SECONDS;
+        public int timeLeft;
+        public String imageBase64 = "";
 
         public Item(int id, String name, String type, double price, String seller) {
-            this(id, name, type, price, seller, DEFAULT_AUCTION_SECONDS);
+            this(id, name, type, price, seller, DEFAULT_AUCTION_SECONDS, "");
         }
 
-        public Item(int id, String name, String type, double price, String seller, int durationSeconds) {
+        public Item(int id, String name, String type, double price, String seller,
+                    int durationSeconds, String imageBase64) {
             this.id = id;
             this.name = name;
             this.type = type;
@@ -351,11 +361,13 @@ public class AuctionManager {
             this.seller = seller;
             this.winner = "";
             this.timeLeft = durationSeconds;
+            this.imageBase64 = imageBase64 != null ? imageBase64 : "";
         }
 
         private JsonObject toJson() {
             JsonObject obj = new JsonObject();
             obj.addProperty("id", id);
+            obj.addProperty("imageBase64", imageBase64 != null ? imageBase64 : "");
             obj.addProperty("name", name);
             obj.addProperty("type", type);
             obj.addProperty("startPrice", startPrice);
