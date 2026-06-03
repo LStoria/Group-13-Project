@@ -8,8 +8,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SQLiteUserRepository implements UserRepository {
+    private static final Logger logger = LoggerFactory.getLogger(SQLiteUserRepository.class);
 
     @Override
     public void save(User user) {
@@ -38,7 +41,7 @@ public class SQLiteUserRepository implements UserRepository {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteUserRepository.save failed", e);
         }
     }
 
@@ -74,7 +77,7 @@ public class SQLiteUserRepository implements UserRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteUserRepository.findByUsername failed", e);
         }
 
         return Optional.empty();
@@ -109,7 +112,7 @@ public class SQLiteUserRepository implements UserRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteUserRepository.findAll failed", e);
         }
 
         return users;
@@ -147,7 +150,7 @@ public class SQLiteUserRepository implements UserRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteUserRepository.findById failed", e);
         }
 
         return Optional.empty();

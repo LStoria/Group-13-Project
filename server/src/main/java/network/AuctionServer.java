@@ -8,10 +8,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import database.DatabaseInitializer;
 
 public class AuctionServer {
+    private static final Logger logger = LoggerFactory.getLogger(AuctionServer.class);
     // Chọn một port trống, ví dụ 8080 hoặc 9999
     private static final int PORT = 8080;
 
@@ -26,14 +29,14 @@ public class AuctionServer {
         DatabaseInitializer.initialize();
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("=== Hệ thống Đấu giá Online ===");
-            System.out.println("Server đang khởi chạy và lắng nghe tại port " + PORT + "...");
+            logger.info("=== Hệ thống Đấu giá Online ===");
+            logger.info("Server đang khởi chạy và lắng nghe tại port {}...", PORT);
 
             // Vòng lặp vô hạn để liên tục chờ Client kết nối
             while (true) {
                 // Khi có 1 Client (Người 4) kết nối tới, dòng này sẽ được thực thi
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("✅ Có client mới kết nối từ: " + clientSocket.getInetAddress().getHostAddress());
+                logger.info("✅ Có client mới kết nối từ: {}", clientSocket.getInetAddress().getHostAddress());
 
                 // NGAY LẬP TỨC: Tạo một luồng (Thread) mới để xử lý Client này
                 // Điều này giúp Server không bị "đơ" và có thể đón tiếp nhiều người cùng lúc
@@ -44,8 +47,7 @@ public class AuctionServer {
                 threadPool.execute(handler);
             }
         } catch (IOException e) {
-            System.err.println("❌ Lỗi khi khởi động server: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Lỗi khi khởi động server: {}", e.getMessage(), e);
         }
     }
     // Để gửi tin nhắn cho TẤT CẢ mọi người trong phòng

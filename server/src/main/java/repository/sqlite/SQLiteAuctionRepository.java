@@ -15,8 +15,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SQLiteAuctionRepository implements AuctionRepository {
+    private static final Logger logger = LoggerFactory.getLogger(SQLiteAuctionRepository.class);
 
     private final SQLiteItemRepository itemRepository =
             new SQLiteItemRepository();
@@ -103,7 +106,7 @@ public class SQLiteAuctionRepository implements AuctionRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteAuctionRepository.save failed", e);
         }
     }
 
@@ -134,7 +137,7 @@ public class SQLiteAuctionRepository implements AuctionRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteAuctionRepository.findById failed", e);
         }
 
         return Optional.empty();
@@ -168,7 +171,7 @@ public class SQLiteAuctionRepository implements AuctionRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteAuctionRepository.findAll failed", e);
         }
 
         return auctions;
@@ -193,7 +196,7 @@ public class SQLiteAuctionRepository implements AuctionRepository {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteAuctionRepository.delete failed", e);
         }
     }
 
@@ -249,7 +252,7 @@ public class SQLiteAuctionRepository implements AuctionRepository {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("SQLiteAuctionRepository.update failed", e);
         }
     }
 

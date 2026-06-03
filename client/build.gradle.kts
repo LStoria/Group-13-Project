@@ -10,6 +10,8 @@ repositories {
 
 dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
+    // Logging
+    implementation("ch.qos.logback:logback-classic:1.4.8")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

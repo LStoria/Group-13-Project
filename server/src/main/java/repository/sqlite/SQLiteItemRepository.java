@@ -13,8 +13,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SQLiteItemRepository implements ItemRepository {
+    private static final Logger logger = LoggerFactory.getLogger(SQLiteItemRepository.class);
 
     @Override
     public void save(Item item) {
@@ -90,7 +93,7 @@ public class SQLiteItemRepository implements ItemRepository {
 
         } catch (SQLException e) {
 
-            e.printStackTrace();
+            logger.error("SQLiteItemRepository.save failed", e);
         }
     }
 
@@ -123,7 +126,7 @@ public class SQLiteItemRepository implements ItemRepository {
 
         } catch (SQLException e) {
 
-            e.printStackTrace();
+            logger.error("SQLiteItemRepository.findById failed", e);
         }
 
         return Optional.empty();
@@ -160,7 +163,7 @@ public class SQLiteItemRepository implements ItemRepository {
 
         } catch (SQLException e) {
 
-            e.printStackTrace();
+            logger.error("SQLiteItemRepository.findAll failed", e);
         }
 
         return items;
@@ -186,7 +189,7 @@ public class SQLiteItemRepository implements ItemRepository {
 
         } catch (SQLException e) {
 
-            e.printStackTrace();
+            logger.error("SQLiteItemRepository.delete failed", e);
         }
     }
 
@@ -255,7 +258,7 @@ public class SQLiteItemRepository implements ItemRepository {
 
         } catch (SQLException e) {
 
-            e.printStackTrace();
+            logger.error("SQLiteItemRepository.update failed", e);
         }
 
         }
@@ -283,7 +286,7 @@ public class SQLiteItemRepository implements ItemRepository {
 
         } catch (SQLException e) {
 
-            e.printStackTrace();
+            logger.error("SQLiteItemRepository.existsById failed", e);
         }
 
         return false;

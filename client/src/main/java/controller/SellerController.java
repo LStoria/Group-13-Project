@@ -66,6 +66,8 @@ public class SellerController {
                 imagePreview.setImage(new Image(file.toURI().toString()));
                 imageNameLabel.setText(file.getName());
             } catch (Exception e) {
+                org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SellerController.class);
+                logger.error("Error reading image file", e);
                 statusLabel.setText("Khong the doc file anh.");
             }
         }
@@ -126,6 +128,8 @@ public class SellerController {
                     imagePreview.setImage(new Image(new ByteArrayInputStream(bytes)));
                     imageNameLabel.setText("Anh hien tai");
                 } catch (Exception e) {
+                    org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SellerController.class);
+                    logger.error("Error decoding image base64", e);
                     imagePreview.setImage(null);
                     imageNameLabel.setText("Khong co anh");
                 }
@@ -150,6 +154,8 @@ public class SellerController {
         try {
             price = Double.parseDouble(priceField.getText().trim());
         } catch (NumberFormatException ex) {
+            org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SellerController.class);
+            logger.warn("Invalid start price entered: {}", priceField.getText());
             statusLabel.setText("Gia khoi diem khong hop le.");
             return;
         }

@@ -2,8 +2,11 @@ package network;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuctionTimer {
+    private static final Logger logger = LoggerFactory.getLogger(AuctionTimer.class);
     private Timer timer;
     private int secondsRemaining;
     private String itemName;
@@ -19,14 +22,14 @@ public class AuctionTimer {
             @Override
             public void run() {
                 if (secondsRemaining > 0) {
-                    System.out.println("⏳ [" + itemName + "] Còn lại: " + secondsRemaining + "s");
+                    logger.info("⏳ [{}] Còn lại: {}s", itemName, secondsRemaining);
                     secondsRemaining--;
                     
                     // Gửi cập nhật thời gian cho tất cả Client
                     AuctionServer.broadcast("{\"action\":\"TIME_TICK\", \"item\":\"" + itemName + "\", \"time\":" + secondsRemaining + "}");
                 } else {
                     stop();
-                    System.out.println("🏁 [" + itemName + "] ĐÃ KẾT THÚC!");
+                    logger.info("🏁 [{}] ĐÃ KẾT THÚC!", itemName);
                     AuctionServer.broadcast("{\"action\":\"END_AUCTION\", \"item\":\"" + itemName + "\", \"msg\":\"Phiên đấu giá kết thúc!\"}");
                 }
             }
