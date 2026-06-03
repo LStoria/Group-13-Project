@@ -138,21 +138,41 @@ public class AuctionManager {
         saveData();
         return response;
     }
+    private static final int EXTEND_THRESHOLD_SECONDS = 20; // ngưỡng kích hoạt gia hạn
+    private static final int EXTEND_DURATION_SECONDS = 20;  // số giây gia hạn thêm
+
     public static synchronized boolean updateBid(int itemId, double bidAmount, String username) {
         for (Item item : items) {
             if (item.id == itemId) {
                 if ("ACTIVE".equals(item.status) && bidAmount > item.currentPrice) {
                     item.currentPrice = bidAmount;
                     item.winner = username;
+                    // Nếu còn <= 15 giây thì gia hạn thêm 15 giây
+                    if (item.timeLeft <= 15) {
+                        item.timeLeft = 15;
+                        JsonObject event = new JsonObject();
+                        event.addProperty("action", "AUCTION_EXTENDED");
+                        event.addProperty("itemId", item.id);
+                        event.addProperty("timeLeft", item.timeLeft);
+                        event.addProperty("message", "Co nguoi dau gia! Phien duoc gia han them 15 giay.");
+                        AuctionServer.broadcast(event.toString());
+                    }
                     saveData();
                     return true;
                 }
                 return false;
             }
         }
-        return false; // Không tìm thấy sản phẩm
+        return false;
     }
-
+    public static synchronized int getItemTimeLeft(int itemId) {
+        for (Item item : items) {
+            if (item.id == itemId) {
+                return item.timeLeft;
+            }
+        }
+        return 0;
+    }
     private static Item addItem(String name, String type, double price, String seller, int durationSeconds) {
         Item item = new Item(nextItemId++, name, type, price, seller, durationSeconds);
         items.add(item);

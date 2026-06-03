@@ -17,6 +17,7 @@ import javafx.scene.control.TextField;
 import model.AuctionItem;
 import service.SocketClient;
 import util.MessageFactory;
+import javafx.scene.control.TableCell;
 
 public class SellerController {
     @FXML private Label usernameLabel;
@@ -35,6 +36,7 @@ public class SellerController {
     @FXML private TextField durationField;
     @FXML private TextArea descriptionArea;
 
+
     private final ObservableList<AuctionItem> items = FXCollections.observableArrayList();
     private SocketClient client;
 
@@ -51,6 +53,28 @@ public class SellerController {
         typeColumn.setCellValueFactory(data -> data.getValue().typeProperty());
         startPriceColumn.setCellValueFactory(data -> data.getValue().startPriceProperty());
         currentPriceColumn.setCellValueFactory(data -> data.getValue().currentPriceProperty());
+        startPriceColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%,.0f VND", value.doubleValue()));
+                }
+            }
+        });
+        currentPriceColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%,.0f VND", value.doubleValue()));
+                }
+            }
+        });
         statusColumn.setCellValueFactory(data -> data.getValue().statusProperty());
         timeColumn.setCellValueFactory(data -> data.getValue().timeLeftProperty());
         itemTable.setItems(items);
@@ -161,6 +185,9 @@ public class SellerController {
         String action = json.get("action").getAsString();
         if ("ITEM_CREATED".equals(action) || "END_AUCTION".equals(action)) {
             refreshItems();
+        } else if ("AUCTION_EXTENDED".equals(action)) {
+            refreshItems();
+            statusLabel.setText(json.has("message") ? json.get("message").getAsString() : "Phien dau gia duoc gia han!");
         } else if ("TIME_TICK".equals(action) && json.has("items")) {
             for (JsonElement element : json.getAsJsonArray("items")) {
                 JsonObject item = element.getAsJsonObject();

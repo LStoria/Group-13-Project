@@ -116,12 +116,14 @@ public class ClientHandler implements Runnable {
                 String username = request.get("user").getAsString();
 
                 if (AuctionManager.updateBid(itemId, bidAmount, username)) {
-                    // Thông báo cho TẤT CẢ mọi người về mức giá mới
+                    // Lấy timeLeft hiện tại sau khi đã gia hạn (nếu có)
+                    int currentTimeLeft = AuctionManager.getItemTimeLeft(itemId);
                     JsonObject update = new JsonObject();
                     update.addProperty("action", "UPDATE_PRICE");
                     update.addProperty("itemId", itemId);
                     update.addProperty("price", bidAmount);
                     update.addProperty("winner", username);
+                    update.addProperty("timeLeft", currentTimeLeft);
                     AuctionServer.broadcast(gson.toJson(update));
                     sendStatus("SUCCESS", "Đặt giá thành công!");
                 } else {

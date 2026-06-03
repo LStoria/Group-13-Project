@@ -1,5 +1,5 @@
 {
-  "nextItemId": 5,
+  "nextItemId": 13,
   "items": [
     {
       "id": 1,
@@ -39,11 +39,99 @@
       "name": "toai",
       "type": "Electronics",
       "startPrice": 1000.0,
-      "currentPrice": 1000.0,
-      "winner": "",
+      "currentPrice": 1.0E10,
+      "winner": "toaimanh16",
       "seller": "toaimanh",
-      "status": "ACTIVE",
-      "timeLeft": 1000
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 5,
+      "name": "nem chua",
+      "type": "Electronics",
+      "startPrice": 1000.0,
+      "currentPrice": 2000.0,
+      "winner": "toaimanh",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 6,
+      "name": "chả cá",
+      "type": "Art",
+      "startPrice": 10000.0,
+      "currentPrice": 20000.0,
+      "winner": "toaimanh",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 7,
+      "name": "toai",
+      "type": "Electronics",
+      "startPrice": 10000.0,
+      "currentPrice": 300000.0,
+      "winner": "toaimanh",
+      "seller": "toaimanh16",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 8,
+      "name": "bánh rán",
+      "type": "Art",
+      "startPrice": 100000.0,
+      "currentPrice": 1.0E7,
+      "winner": "toaimanh16",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 9,
+      "name": "bánh cà",
+      "type": "Electronics",
+      "startPrice": 10000.0,
+      "currentPrice": 2000000.0,
+      "winner": "1234",
+      "seller": "toaimanh16",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 10,
+      "name": "bánh gói",
+      "type": "Electronics",
+      "startPrice": 1000.0,
+      "currentPrice": 30000.0,
+      "winner": "5555",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 11,
+      "name": "bánh gạo",
+      "type": "Art",
+      "startPrice": 1000.0,
+      "currentPrice": 100000.0,
+      "winner": "toaimanh",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
+    },
+    {
+      "id": 12,
+      "name": "toai",
+      "type": "Electronics",
+      "startPrice": 10.0,
+      "currentPrice": 9000.0,
+      "winner": "1112",
+      "seller": "toaimanh",
+      "status": "ENDED",
+      "timeLeft": 0
     }
   ],
   "users": [
@@ -76,6 +164,36 @@
       "username": "toaimanh",
       "passwordHash": "839c63372259a6630c398587de049b1e8ce168b98545438bf2a50d0538731e89",
       "role": "SELLER"
+    },
+    {
+      "username": "1234",
+      "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+      "role": "BIDDER"
+    },
+    {
+      "username": "1212",
+      "passwordHash": "cbfad02f9ed2a8d1e08d8f74f5303e9eb93637d47f82ab6f1c15871cf8dd0481",
+      "role": "BIDDER"
+    },
+    {
+      "username": "1233",
+      "passwordHash": "30bc0a114420f0d47a28efdd05dd389dd8633700d22c0b6fb815ee17fa95efc0",
+      "role": "BIDDER"
+    },
+    {
+      "username": "1112",
+      "passwordHash": "cbfad02f9ed2a8d1e08d8f74f5303e9eb93637d47f82ab6f1c15871cf8dd0481",
+      "role": "BIDDER"
+    },
+    {
+      "username": "5555",
+      "passwordHash": "c1f330d0aff31c1c87403f1e4347bcc21aff7c179908723535f2b31723702525",
+      "role": "BIDDER"
+    },
+    {
+      "username": "11111",
+      "passwordHash": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
+      "role": "BIDDER"
     },
     {
       "username": "atizii",
