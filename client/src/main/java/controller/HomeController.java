@@ -4,6 +4,9 @@ import app.MainApp;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.util.Duration;
 import model.AuctionItem;
 import service.SocketClient;
 import util.MessageFactory;
@@ -20,6 +24,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
 import java.util.Base64;
 
 public class HomeController {
@@ -41,6 +46,11 @@ public class HomeController {
 
     @FXML
     private void initialize() {
+
+        //log
+        System.out.println("HOME CONTROLLER INITIALIZED");
+        System.out.println("SETTING HOME LISTENER");
+
         client = MainApp.getSocketClient();
         usernameLabel.setText("User: " + client.getUsername());
 
@@ -90,6 +100,22 @@ public class HomeController {
         }
 
         refreshItems();
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(
+                        Duration.seconds(1),
+                        e -> {
+                            for (AuctionItem item : items) {
+                                item.updateTimeLeft();
+                            }
+                            itemTable.refresh();
+                        }
+                )
+        );
+
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+
     }
 
     @FXML
@@ -118,7 +144,7 @@ public class HomeController {
             statusLabel.setText("Gia dat phai cao hon gia hien tai.");
             return;
         }
-        if (!"ACTIVE".equals(selectedItem.getStatus())) {
+        if ("ENDED".equals(selectedItem.getStatus())) {
             statusLabel.setText("Phien dau gia nay da ket thuc.");
             return;
         }
@@ -147,6 +173,12 @@ public class HomeController {
     }
 
     private void handleServerMessage(String message) {
+
+        //log
+        System.out.println("HOME RECEIVED = " + message);
+
+
+
         try {
             JsonObject json = MessageFactory.fromJson(message, JsonObject.class);
             if (json.has("data") && json.get("data").isJsonArray()) {
@@ -165,22 +197,60 @@ public class HomeController {
     }
 
     private void loadItems(JsonArray data) {
+
+//        items.clear();
+//        for (JsonElement element : data) {
+//            JsonObject item = element.getAsJsonObject();
+//            items.add(new AuctionItem(
+//                    item.get("id").getAsInt(),
+//                    item.get("name").getAsString(),
+//                    getString(item, "type", ""),
+//                    getDouble(item, "startPrice", item.get("price").getAsDouble()),
+//                    item.get("price").getAsDouble(),
+//                    getString(item, "winner", "-"),
+//                    getString(item, "seller", ""),
+//                    getString(item, "status", "ACTIVE"),
+//                    getInt(item, "timeLeft", 0),
+//                    getString(item, "imageBase64", "")
+//            ));
+//        }
+
+        System.out.println("LOAD ITEMS CALLED");
+        System.out.println("SIZE = " + data.size());
+
         items.clear();
+
         for (JsonElement element : data) {
+
             JsonObject item = element.getAsJsonObject();
+
+            System.out.println("ADDING: " + item);
+
+            LocalDateTime endTime =
+                    LocalDateTime.parse(
+                            getString(
+                                    item,
+                                    "endTime",
+                                    LocalDateTime.now().toString()
+                            )
+                    );
+
             items.add(new AuctionItem(
-                    item.get("id").getAsInt(),
-                    item.get("name").getAsString(),
+                    getInt(item, "id", 0),
+                    getString(item, "name", ""),
                     getString(item, "type", ""),
-                    getDouble(item, "startPrice", item.get("price").getAsDouble()),
-                    item.get("price").getAsDouble(),
+                    getDouble(item, "startPrice", 0),
+                    getDouble(item, "currentPrice", 0),
                     getString(item, "winner", "-"),
                     getString(item, "seller", ""),
-                    getString(item, "status", "ACTIVE"),
-                    getInt(item, "timeLeft", 0),
+                    getString(item, "status", "OPEN"),
+                    endTime,
                     getString(item, "imageBase64", "")
             ));
         }
+
+        System.out.println("ITEMS SIZE = " + items.size());
+
     }
 
     private void handleRealtimeAction(JsonObject json) {
@@ -201,18 +271,27 @@ public class HomeController {
                 updateItemStatus(item.get("id").getAsInt(), "ENDED", 0);
             }
             statusLabel.setText(json.has("message") ? json.get("message").getAsString() : "Phien dau gia da ket thuc.");
-        } else if ("TIME_TICK".equals(action) && json.has("items") && json.get("items").isJsonArray()) {
-            for (JsonElement element : json.getAsJsonArray("items")) {
-                JsonObject item = element.getAsJsonObject();
-                updateItemTime(item.get("id").getAsInt(), item.get("timeLeft").getAsInt());
-            }
         } else if ("ITEM_CREATED".equals(action)) {
             refreshItems();
         } else if ("AUCTION_EXTENDED".equals(action)) {
+
             int itemId = json.get("itemId").getAsInt();
-            int timeLeft = json.get("timeLeft").getAsInt();
-            updateItemTime(itemId, timeLeft);
-            statusLabel.setText(json.has("message") ? json.get("message").getAsString() : "Phien dau gia duoc gia han!");
+
+            LocalDateTime endTime =
+                    LocalDateTime.parse(
+                            json.get("endTime").getAsString()
+                    );
+
+            updateItemEndTime(
+                    itemId,
+                    endTime
+            );
+
+            statusLabel.setText(
+                    json.has("message")
+                            ? json.get("message").getAsString()
+                            : "Phien dau gia duoc gia han!"
+            );
         }
     }
 
@@ -231,6 +310,21 @@ public class HomeController {
         for (AuctionItem item : items) {
             if (item.getId() == itemId) {
                 item.setTimeLeft(timeLeft);
+                return;
+            }
+        }
+    }
+
+    private void updateItemEndTime(
+            int itemId,
+            LocalDateTime endTime) {
+
+        for (AuctionItem item : items) {
+
+            if (item.getId() == itemId) {
+
+                item.setEndTime(endTime);
+
                 return;
             }
         }

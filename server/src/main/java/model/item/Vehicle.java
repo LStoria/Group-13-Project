@@ -7,10 +7,10 @@ public class Vehicle extends Item {
     private String brand;
     private String model;
 
-    public Vehicle(String name, User seller, double startPrice, double currentPrice, String brand, String model) {
+    public Vehicle(String name, User seller, double startPrice, double currentPrice) {
         super(name, seller, startPrice, currentPrice);
-        this.brand = brand;
-        this.model = model;
+        this.brand = "";
+        this.model = "";
     }
 
     public String getBrand() {
