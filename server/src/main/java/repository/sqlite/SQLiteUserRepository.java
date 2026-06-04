@@ -21,9 +21,10 @@ public class SQLiteUserRepository implements UserRepository {
             INSERT INTO users(
                 username,
                 email,
-                password_hash
+                password_hash,
+                role
             )
-            VALUES(?,?,?)
+            VALUES(?,?,?,?)
         """;
 
         try (
@@ -37,6 +38,7 @@ public class SQLiteUserRepository implements UserRepository {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getEmail());
             stmt.setString(3, user.getPasswordHash());
+            stmt.setString(4, user.getRole());
 
             stmt.executeUpdate();
 
@@ -70,7 +72,12 @@ public class SQLiteUserRepository implements UserRepository {
                 User user = new User(
                         rs.getString("username"),
                         rs.getString("email"),
-                        rs.getString("password_hash")
+                        rs.getString("password_hash"),
+                        rs.getString("role")
+                );
+
+                user.setId(
+                        rs.getLong("id")
                 );
 
                 return Optional.of(user);
@@ -105,7 +112,8 @@ public class SQLiteUserRepository implements UserRepository {
                 User user = new User(
                         rs.getString("username"),
                         rs.getString("email"),
-                        rs.getString("password_hash")
+                        rs.getString("password_hash"),
+                        rs.getString("role")
                 );
 
                 users.add(user);
@@ -141,7 +149,8 @@ public class SQLiteUserRepository implements UserRepository {
                 User user = new User(
                         rs.getString("username"),
                         rs.getString("email"),
-                        rs.getString("password_hash")
+                        rs.getString("password_hash"),
+                        rs.getString("role")
                 );
 
                 user.setId(rs.getLong("id"));
