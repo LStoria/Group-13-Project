@@ -181,3 +181,6 @@ Hệ thống đã triển khai đầy đủ các tính năng then chốt của m
     *   Giao diện dành riêng cho tài khoản quyền `ADMIN`.
     *   Xem danh sách tất cả người dùng và tất cả sản phẩm đấu giá trên hệ thống.
     *   Dữ liệu được Server kiểm tra xác thực quyền hạn trước khi trả về từ cơ sở dữ liệu SQLite dưới dạng JSON.
+  
+      ## Link sản phẩm:
+    https://drive.google.com/drive/folders/1DbbYBFoQKJ3tEpwJONU85dPoskQw8YUC?usp=drive_link
