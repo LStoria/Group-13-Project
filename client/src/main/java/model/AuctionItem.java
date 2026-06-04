@@ -7,6 +7,9 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class AuctionItem {
     private final IntegerProperty id = new SimpleIntegerProperty();
     private final StringProperty imageBase64 = new SimpleStringProperty("");
@@ -18,6 +21,63 @@ public class AuctionItem {
     private final StringProperty seller = new SimpleStringProperty();
     private final StringProperty status = new SimpleStringProperty();
     private final IntegerProperty timeLeft = new SimpleIntegerProperty();
+
+    private LocalDateTime endTime;
+
+    public AuctionItem(
+            int id,
+            String name,
+            String type,
+            double startPrice,
+            double currentPrice,
+            String winner,
+            String seller,
+            String status,
+            LocalDateTime endTime,
+            String imageBase64
+    ) {
+        this.id.set(id);
+        this.name.set(name);
+        this.type.set(type);
+        this.startPrice.set(startPrice);
+        this.currentPrice.set(currentPrice);
+        this.winner.set(winner);
+        this.seller.set(seller);
+        this.status.set(status);
+        this.endTime = endTime;
+        this.imageBase64.set(imageBase64);
+
+        updateTimeLeft();
+    }
+
+    public void updateTimeLeft() {
+        if (endTime == null) {
+            timeLeft.set(0);
+            return;
+        }
+
+        long seconds =
+
+                Duration.between(
+                        LocalDateTime.now(),
+                        endTime
+                ).getSeconds();
+
+        timeLeft.set((int)Math.max(0, seconds));
+
+        if (seconds <= 0) {
+            status.set("ENDED");
+        }
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+        updateTimeLeft();
+    }
 
     public AuctionItem(int id, String name, double currentPrice, String winner) {
         this(id, name, "", currentPrice, currentPrice, winner, "", "ACTIVE", 0);

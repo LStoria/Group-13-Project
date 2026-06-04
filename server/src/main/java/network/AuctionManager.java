@@ -4,16 +4,32 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import model.auction.Auction;
+import model.auction.BidTransaction;
+import model.item.Art;
+import model.item.Electronics;
+import model.item.Vehicle;
+import model.user.User;
+
+import repository.repointerface.BidTransactionRepository;
+import repository.repointerface.ItemRepository;
+import repository.repointerface.AuctionRepository;
+
+import repository.repointerface.UserRepository;
+import repository.sqlite.SQLiteBidTransactionRepository;
+import repository.sqlite.SQLiteItemRepository;
+import repository.sqlite.SQLiteAuctionRepository;
+import repository.sqlite.SQLiteUserRepository;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -34,28 +50,55 @@ public class AuctionManager {
 
     static {
         loadData();
-        startGlobalTimer();
     }
 
-    public static synchronized JsonObject authenticate(String username, String password) {
-        JsonObject response = new JsonObject();
-        UserAccount account = users.get(username);
+    private static final UserRepository userRepo =
+            new SQLiteUserRepository();
 
-        if (account == null || !account.passwordHash.equals(hashPassword(password))) {
+    private static final ItemRepository itemRepo =
+            new SQLiteItemRepository();
+
+    private static final AuctionRepository auctionRepo =
+            new SQLiteAuctionRepository();
+
+    public static synchronized JsonObject authenticate(
+            String username,
+            String password)
+    {
+        JsonObject response = new JsonObject();
+
+        Optional<User> userOpt =
+                userRepo.findByUsername(username);
+
+        if (userOpt.isEmpty()) {
+            response.addProperty("status", "ERROR");
+            response.addProperty("message", "Sai username hoặc password.");
+            return response;
+        }
+
+        User user = userOpt.get();
+
+        if (!user.getPasswordHash()
+                .equals(hashPassword(password))) {
+
             response.addProperty("status", "ERROR");
             response.addProperty("message", "Sai username hoặc password.");
             return response;
         }
 
         response.addProperty("status", "SUCCESS");
-        response.addProperty("message", "Đăng nhập thành công!");
-        response.addProperty("username", account.username);
-        response.addProperty("role", account.role);
+        response.addProperty("username", user.getUsername());
+        response.addProperty(
+                "role",
+                user.getRole()
+        );
+
         return response;
     }
 
     public static synchronized JsonObject register(String username, String password, String role) {
         JsonObject response = new JsonObject();
+
         if (username == null || username.isBlank()) {
             response.addProperty("status", "ERROR");
             response.addProperty("message", "Username không được trống.");
@@ -74,14 +117,33 @@ public class AuctionManager {
             return response;
         }
 
-        UserAccount account = new UserAccount(normalizedUsername, hashPassword(password), normalizeRole(role));
-        users.put(account.username, account);
-        saveData();
+        String normalizedRole =
+                normalizeRole(role);
+
+        String hashedPassword =
+                hashPassword(password);
+
+        final UserRepository userRepo =
+                new SQLiteUserRepository();
+
+        if (userRepo.existsByUsername(username)) {
+            response.addProperty("status", "ERROR");
+            response.addProperty("message", "Username đã tồn tại.");
+            return response;
+        }
+
+        User user =
+                new User(
+                        username,
+                        username + "@local",
+                        hashedPassword,
+                        role
+                );
+
+        userRepo.save(user);
 
         response.addProperty("status", "SUCCESS");
         response.addProperty("message", "Đăng ký tài khoản thành công.");
-        response.addProperty("username", account.username);
-        response.addProperty("role", account.role);
         return response;
     }
 
@@ -90,93 +152,401 @@ public class AuctionManager {
     }
 
     public static synchronized String getItemsJson(String seller) {
+
+
+        //log
+        System.out.println("GET ITEMS JSON CALLED");
+        System.out.println("SELLER FILTER = " + seller);
+
+
+
         JsonArray array = new JsonArray();
-        for (Item item : items) {
-            if (seller == null || seller.equals(item.seller)) {
-                array.add(item.toJson());
+
+        List<Auction> auctions =
+                auctionRepo.findAll();
+
+        for (Auction auction : auctions) {
+
+            model.item.Item item =
+                    auction.getItem();
+
+            if (item == null) {
+                continue;
             }
+
+            System.out.println(
+                    "COMPARE: filter=" + seller
+                            + " itemSeller="
+                            + (item.getSeller() == null
+                            ? "NULL"
+                            : item.getSeller().getUsername())
+            );
+
+            if (seller != null
+                    && item.getSeller() != null
+                    && !seller.equals(
+                    item.getSeller().getUsername())) {
+
+                continue;
+            }
+
+            JsonObject obj =
+                    new JsonObject();
+
+            obj.addProperty(
+                    "id",
+                    auction.getId()
+            );
+
+            obj.addProperty(
+                    "name",
+                    item.getName()
+            );
+
+            obj.addProperty(
+                    "type",
+                    item.getType()
+            );
+
+            obj.addProperty(
+                    "seller",
+                    item.getSeller() != null
+                            ? item.getSeller().getUsername()
+                            : ""
+            );
+
+            obj.addProperty(
+                    "startPrice",
+                    item.getStartPrice()
+            );
+
+            obj.addProperty(
+                    "currentPrice",
+                    auction.getCurrentPrice()
+            );
+
+            obj.addProperty(
+                    "status",
+                    auction.getStatus().name()
+            );
+
+            obj.addProperty(
+                    "endTime",
+                    auction.getEndTime().toString()
+            );
+
+            array.add(obj);
+
         }
+
         return array.toString();
     }
 
     public static synchronized String getUsersJson() {
         JsonArray array = new JsonArray();
-        for (UserAccount account : users.values()) {
+
+        List<User> users = userRepo.findAll();
+
+        for (User user : users) {
+
             JsonObject obj = new JsonObject();
-            obj.addProperty("username", account.username);
-            obj.addProperty("role", account.role);
+
+            obj.addProperty(
+                    "username",
+                    user.getUsername()
+            );
+
+            obj.addProperty(
+                    "email",
+                    user.getEmail()
+            );
+
             array.add(obj);
         }
+
         return array.toString();
     }
 
-    public static synchronized JsonObject createItem(String name, String type, double startPrice, String seller) {
-        return createItem(name, type, startPrice, seller, DEFAULT_AUCTION_SECONDS, "");
+    public static synchronized JsonObject createItem(
+            String name,
+            String type,
+            double startPrice,
+            String seller) {
+
+        return createItem(
+                name,
+                type,
+                startPrice,
+                seller,
+                DEFAULT_AUCTION_SECONDS,
+                ""
+        );
     }
 
-    public static synchronized JsonObject createItem(String name, String type, double startPrice,
-                                                     String seller, int durationSeconds, String imageBase64) {
-        // validation giống như createItem cũ
+    public static synchronized JsonObject createItem(
+            String name,
+            String type,
+            double startPrice,
+            String seller,
+            int durationSeconds,
+            String imageBase64) {
+
         JsonObject response = new JsonObject();
+
         if (name == null || name.isBlank()) {
+
             response.addProperty("status", "ERROR");
-            response.addProperty("message", "Tên sản phẩm không được trống.");
+            response.addProperty(
+                    "message",
+                    "Tên sản phẩm không được trống."
+            );
+
             return response;
         }
+
         if (startPrice <= 0) {
+
             response.addProperty("status", "ERROR");
-            response.addProperty("message", "Giá khởi điểm phải lớn hơn 0.");
+            response.addProperty(
+                    "message",
+                    "Giá khởi điểm phải lớn hơn 0."
+            );
+
             return response;
         }
+
         if (durationSeconds <= 0) {
+
             response.addProperty("status", "ERROR");
-            response.addProperty("message", "Thời gian đấu giá phải lớn hơn 0 giây.");
+            response.addProperty(
+                    "message",
+                    "Thời gian đấu giá phải lớn hơn 0 giây."
+            );
+
             return response;
         }
-        Item item = new Item(nextItemId++, name.trim(), normalizeType(type),
-                startPrice, seller, durationSeconds, imageBase64);
-        items.add(item);
-        response.addProperty("status", "SUCCESS");
-        response.addProperty("message", "Tạo sản phẩm đấu giá thành công.");
-        response.add("item", item.toJson());
-        saveData();
+
+        User sellerUser =
+                userRepo.findByUsername(seller)
+                        .orElse(null);
+
+        if (sellerUser == null) {
+
+            response.addProperty("status", "ERROR");
+            response.addProperty(
+                    "message",
+                    "Không tìm thấy người bán."
+            );
+
+            return response;
+        }
+
+        model.item.Item item;
+
+        String normalizedType =
+                normalizeType(type);
+
+        switch (normalizedType) {
+
+            case "ART":
+
+                item = new Art(
+                        name.trim(),
+                        sellerUser,
+                        startPrice,
+                        startPrice
+                );
+
+                break;
+
+            case "VEHICLE":
+
+                item = new Vehicle(
+                        name.trim(),
+                        sellerUser,
+                        startPrice,
+                        startPrice
+                );
+
+                break;
+
+            default:
+
+                item = new Electronics(
+                        name.trim(),
+                        sellerUser,
+                        startPrice,
+                        startPrice
+                );
+        }
+
+        itemRepo.save(item);
+
+        Auction auction =
+                new Auction(
+                        item,
+                        startPrice,
+                        LocalDateTime.now(),
+                        LocalDateTime.now()
+                                .plusSeconds(durationSeconds)
+                );
+
+        auctionRepo.save(auction);
+
+        JsonObject itemJson =
+                new JsonObject();
+
+        itemJson.addProperty(
+                "id",
+                item.getId()
+        );
+
+        itemJson.addProperty(
+                "name",
+                item.getName()
+        );
+
+        itemJson.addProperty(
+                "type",
+                normalizedType
+        );
+
+        itemJson.addProperty(
+                "seller",
+                sellerUser.getUsername()
+        );
+
+        itemJson.addProperty(
+                "startPrice",
+                startPrice
+        );
+
+        itemJson.addProperty(
+                "currentPrice",
+                auction.getCurrentPrice()
+        );
+
+        response.addProperty(
+                "status",
+                "SUCCESS"
+        );
+
+        response.addProperty(
+                "message",
+                "Tạo sản phẩm đấu giá thành công."
+        );
+
+        response.add(
+                "item",
+                itemJson
+        );
+
         return response;
     }
+
     private static final int EXTEND_THRESHOLD_SECONDS = 20; // ngưỡng kích hoạt gia hạn
     private static final int EXTEND_DURATION_SECONDS = 20;  // số giây gia hạn thêm
 
-    public static synchronized boolean updateBid(int itemId, double bidAmount, String username) {
-        for (Item item : items) {
-            if (item.id == itemId) {
-                if ("ACTIVE".equals(item.status) && bidAmount > item.currentPrice) {
-                    item.currentPrice = bidAmount;
-                    item.winner = username;
-                    // Nếu còn <= 15 giây thì gia hạn thêm 15 giây
-                    if (item.timeLeft <= 15) {
-                        item.timeLeft = 15;
-                        JsonObject event = new JsonObject();
-                        event.addProperty("action", "AUCTION_EXTENDED");
-                        event.addProperty("itemId", item.id);
-                        event.addProperty("timeLeft", item.timeLeft);
-                        event.addProperty("message", "Co nguoi dau gia! Phien duoc gia han them 15 giay.");
-                        AuctionServer.broadcast(event.toString());
-                    }
-                    saveData();
-                    return true;
-                }
-                return false;
-            }
+    private static final BidTransactionRepository bidRepo =
+            new SQLiteBidTransactionRepository();
+
+    public static synchronized boolean updateBid(
+            Long auctionId,
+            double bidAmount,
+            String username) {
+
+        Auction auction =
+                auctionRepo.findById(auctionId)
+                        .orElse(null);
+
+        if (auction == null) {
+            return false;
         }
-        return false;
-    }
-    public static synchronized int getItemTimeLeft(int itemId) {
-        for (Item item : items) {
-            if (item.id == itemId) {
-                return item.timeLeft;
-            }
+
+        User bidder =
+                userRepo.findByUsername(username)
+                        .orElse(null);
+
+        if (bidder == null) {
+            return false;
         }
-        return 0;
+
+        try {
+
+            BidTransaction bid =
+                    new BidTransaction(
+                            auction,
+                            bidder,
+                            bidAmount,
+                            LocalDateTime.now()
+                    );
+
+            auction.placeBid(bid);
+
+            bidRepo.save(bid);
+
+            long secondsLeft =
+                    Duration.between(
+                            LocalDateTime.now(),
+                            auction.getEndTime()
+                    ).getSeconds();
+
+            if (secondsLeft <= 15) {
+
+                auction.setEndTime(
+                        auction.getEndTime()
+                                .plusSeconds(15)
+                );
+
+                auctionRepo.update(auction);
+
+                JsonObject event = new JsonObject();
+
+                event.addProperty(
+                        "action",
+                        "AUCTION_EXTENDED"
+                );
+
+                event.addProperty(
+                        "itemId",
+                        auction.getId()
+                );
+
+                event.addProperty(
+                        "timeLeft",
+                        Duration.between(
+                                LocalDateTime.now(),
+                                auction.getEndTime()
+                        ).getSeconds()
+                );
+
+                event.addProperty(
+                        "endTime",
+                        auction.getEndTime().toString()
+                );
+
+                event.addProperty(
+                        "message",
+                        "Co nguoi dat gia trong 15 giay cuoi. Phien dau gia duoc gia han them 15 giay."
+                );
+
+                AuctionServer.broadcast(
+                        event.toString()
+                );
+            }
+
+            auctionRepo.update(auction);
+
+            return true;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return false;
+        }
     }
+
     private static Item addItem(String name, String type, double price, String seller, int durationSeconds) {
         return addItem(name, type, price, seller, durationSeconds, "");
     }
@@ -296,45 +666,6 @@ public class AuctionManager {
         }
     }
 
-    private static void startGlobalTimer() {
-        timer.scheduleAtFixedRate(() -> {
-            JsonArray ticks = new JsonArray();
-            JsonArray ended = new JsonArray();
-            synchronized (AuctionManager.class) {
-                for (Item item : items) {
-                    if ("ACTIVE".equals(item.status) && item.timeLeft > 0) {
-                        item.timeLeft--;
-                        JsonObject tick = new JsonObject();
-                        tick.addProperty("id", item.id);
-                        tick.addProperty("name", item.name);
-                        tick.addProperty("timeLeft", item.timeLeft);
-                        ticks.add(tick);
-                        if (item.timeLeft == 0) {
-                            item.status = "ENDED";
-                            ended.add(item.toJson());
-                            saveData();
-                        }
-                    }
-                }
-            }
-
-            if (ticks.size() > 0) {
-                JsonObject event = new JsonObject();
-                event.addProperty("action", "TIME_TICK");
-                event.add("items", ticks);
-                AuctionServer.broadcast(event.toString());
-            }
-            for (int i = 0; i < ended.size(); i++) {
-                JsonObject event = new JsonObject();
-                JsonObject item = ended.get(i).getAsJsonObject();
-                event.addProperty("action", "END_AUCTION");
-                event.add("item", item);
-                event.addProperty("message", "Phiên đấu giá đã kết thúc: " + item.get("name").getAsString());
-                AuctionServer.broadcast(event.toString());
-            }
-        }, 1, 1, TimeUnit.SECONDS);
-    }
-
     public static class Item {
         public int id;
         public String name;
@@ -388,4 +719,5 @@ public class AuctionManager {
 
     private record UserAccount(String username, String passwordHash, String role) {
     }
+
 }

@@ -4,6 +4,9 @@ import app.MainApp;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,6 +17,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.util.Duration;
 import model.AuctionItem;
 import service.SocketClient;
 import util.MessageFactory;
@@ -23,6 +27,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import java.io.File;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.io.ByteArrayInputStream;
 import javafx.application.Platform;
@@ -140,6 +145,21 @@ public class SellerController {
                 imageNameLabel.setText("Chua chon");
             }
         });
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(
+                        Duration.seconds(1),
+                        e -> {
+                            for (AuctionItem item : items) {
+                                item.updateTimeLeft();
+                            }
+                        }
+                )
+        );
+
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+
     }
 
     @FXML
@@ -202,6 +222,10 @@ public class SellerController {
     }
 
     private void handleServerMessage(String message) {
+
+        //log
+        System.out.println("SELLER RECEIVED = " + message);
+
         try {
             JsonObject json = MessageFactory.fromJson(message, JsonObject.class);
             if (json.has("data") && json.get("data").isJsonArray()) {
@@ -225,22 +249,58 @@ public class SellerController {
     }
 
     private void loadItems(JsonArray data) {
+
+        System.out.println("SELLER LOAD ITEMS");
+        System.out.println("SIZE = " + data.size());
+
         items.clear();
+
         for (JsonElement element : data) {
-            JsonObject item = element.getAsJsonObject();
-            items.add(new AuctionItem(
-                    item.get("id").getAsInt(),
-                    item.get("name").getAsString(),
-                    getString(item, "type", ""),
-                    getDouble(item, "startPrice", item.get("price").getAsDouble()),
-                    item.get("price").getAsDouble(),
-                    getString(item, "winner", "-"),
-                    getString(item, "seller", ""),
-                    getString(item, "status", "ACTIVE"),
-                    getInt(item, "timeLeft", 0),
-                    getString(item, "imageBase64", "")
-            ));
+
+            try {
+
+                System.out.println("ADDING " + element);
+
+                JsonObject item =
+                        element.getAsJsonObject();
+
+                LocalDateTime endTime =
+                        LocalDateTime.parse(
+                                getString(item, "endTime",
+                                        LocalDateTime.now().toString())
+                        );
+
+                AuctionItem auctionItem =
+                        new AuctionItem(
+                                getInt(item, "id", 0),
+                                getString(item, "name", ""),
+                                getString(item, "type", ""),
+                                getDouble(item, "startPrice", 0),
+                                getDouble(item, "currentPrice", 0),
+                                getString(item, "winner", "-"),
+                                getString(item, "seller", ""),
+                                getString(item, "status", "OPEN"),
+                                endTime,
+                                getString(item, "imageBase64", "")
+                        );
+
+                items.add(auctionItem);
+
+            } catch (Exception e) {
+
+                System.out.println(
+                        "FAILED ITEM = " + element
+                );
+
+                e.printStackTrace();
+            }
         }
+
+        System.out.println(
+                "TOTAL LOADED = " + items.size()
+        );
+
+        itemTable.refresh();
     }
 
     private void handleRealtimeAction(JsonObject json) {
@@ -275,15 +335,16 @@ public class SellerController {
                             : "Phien dau gia duoc gia han!"
             );
 
-        } else if ("TIME_TICK".equals(action) && json.has("items")) {
+        } else if ("AUCTION_EXTENDED".equals(action)) {
 
-            for (JsonElement element : json.getAsJsonArray("items")) {
-                JsonObject item = element.getAsJsonObject();
-                updateItemTime(
-                        item.get("id").getAsInt(),
-                        item.get("timeLeft").getAsInt()
-                );
-            }
+            int itemId = json.get("itemId").getAsInt();
+
+            LocalDateTime endTime =
+                    LocalDateTime.parse(
+                            json.get("endTime").getAsString()
+                    );
+
+            updateItemEndTime(itemId, endTime);
         }
     }
 
@@ -307,4 +368,20 @@ public class SellerController {
     private double getDouble(JsonObject item, String key, double defaultValue) {
         return item.has(key) && !item.get(key).isJsonNull() ? item.get(key).getAsDouble() : defaultValue;
     }
+
+    private void updateItemEndTime(
+            int itemId,
+            LocalDateTime endTime) {
+
+        for (AuctionItem item : items) {
+
+            if (item.getId() == itemId) {
+
+                item.setEndTime(endTime);
+
+                return;
+            }
+        }
+    }
+
 }
