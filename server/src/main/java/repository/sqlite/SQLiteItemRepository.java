@@ -19,6 +19,9 @@ import org.slf4j.LoggerFactory;
 public class SQLiteItemRepository implements ItemRepository {
     private static final Logger logger = LoggerFactory.getLogger(SQLiteItemRepository.class);
 
+    private final SQLiteUserRepository userRepository =
+            new SQLiteUserRepository();
+
     @Override
     public void save(Item item) {
 
@@ -293,9 +296,74 @@ public class SQLiteItemRepository implements ItemRepository {
     }
 
 
+//    private Item createItemFromResultSet(
+//            ResultSet rs
+//    ) throws SQLException {
+//
+//        String type =
+//                rs.getString("item_type");
+//
+//        Item item;
+//
+//        switch (type) {
+//
+//            case "ART" ->
+//
+//                    item = new Art(
+//                            rs.getString("name"),
+//                            null,
+//                            rs.getDouble("start_price"),
+//                            rs.getDouble("current_price")
+//                    );
+//
+//
+//            case "VEHICLE" ->
+//
+//                    item = new Vehicle(
+//                            rs.getString("name"),
+//                            null,
+//                            rs.getDouble("start_price"),
+//                            rs.getDouble("current_price")
+//                    );
+//            case "ELECTRONICS" ->
+//
+//                    item = new Electronics(
+//                            rs.getString("name"),
+//                            null,
+//                            rs.getDouble("start_price"),
+//                            rs.getDouble("current_price")
+//                    );
+//
+//            default ->
+//                    throw new SQLException(
+//                            "Unknown item type: "
+//                                    + type
+//                    );
+//        }
+//
+//        item.setId(
+//                rs.getLong("id")
+//        );
+//
+//        item.setCurrentPrice(
+//                rs.getDouble("current_price")
+//        );
+//
+//        return item;
+//    }
+
     private Item createItemFromResultSet(
             ResultSet rs
     ) throws SQLException {
+
+        Long sellerId =
+                rs.getLong("seller_id");
+
+        var seller =
+                rs.wasNull()
+                        ? null
+                        : userRepository.findById(sellerId)
+                        .orElse(null);
 
         String type =
                 rs.getString("item_type");
@@ -308,37 +376,32 @@ public class SQLiteItemRepository implements ItemRepository {
 
                     item = new Art(
                             rs.getString("name"),
-                            null,
+                            seller,
                             rs.getDouble("start_price"),
-                            rs.getDouble("current_price"),
-                            "Unknown"
+                            rs.getDouble("current_price")
                     );
-
 
             case "VEHICLE" ->
 
                     item = new Vehicle(
                             rs.getString("name"),
-                            null,
+                            seller,
                             rs.getDouble("start_price"),
-                            rs.getDouble("current_price"),
-                            "Unknown",
-                            "Unknown"
+                            rs.getDouble("current_price")
                     );
+
             case "ELECTRONICS" ->
 
                     item = new Electronics(
                             rs.getString("name"),
-                            null,
+                            seller,
                             rs.getDouble("start_price"),
-                            rs.getDouble("current_price"),
-                            "Unknown"
+                            rs.getDouble("current_price")
                     );
 
             default ->
                     throw new SQLException(
-                            "Unknown item type: "
-                                    + type
+                            "Unknown item type: " + type
                     );
         }
 
@@ -348,6 +411,14 @@ public class SQLiteItemRepository implements ItemRepository {
 
         item.setCurrentPrice(
                 rs.getDouble("current_price")
+        );
+
+        System.out.println(
+                "ITEM = " + item.getName()
+                        + " | SELLER = "
+                        + (item.getSeller() == null
+                        ? "NULL"
+                        : item.getSeller().getUsername())
         );
 
         return item;

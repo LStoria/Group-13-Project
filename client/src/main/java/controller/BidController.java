@@ -4,6 +4,9 @@ import app.MainApp;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,9 +15,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.util.Duration;
 import model.AuctionItem;
 import service.SocketClient;
 import util.MessageFactory;
+
+import java.time.LocalDateTime;
 
 public class BidController {
     @FXML private Label statusLabel;
@@ -32,6 +38,13 @@ public class BidController {
 
     @FXML
     private void initialize() {
+
+
+        //log
+        System.out.println("BID CONTROLLER INITIALIZED");
+
+
+
         client = MainApp.getSocketClient();
 
         idColumn.setCellValueFactory(data -> data.getValue().idProperty());
@@ -44,8 +57,43 @@ public class BidController {
             selectedItemField.setText(newItem == null ? "" : newItem.getName());
         });
 
-        client.setMessageListener(message -> Platform.runLater(() -> handleServerMessage(message)));
+
+        //client.setMessageListener(
+        //        message -> Platform.runLater(
+        //                () -> handleServerMessage(message)
+        //        )
+        //);
+
+
+        client.setMessageListener(message -> {
+
+            System.out.println(
+                    "BID CONTROLLER RECEIVED => "
+                            + message
+            );
+
+            Platform.runLater(
+                    () -> handleServerMessage(message)
+            );
+        });
+
+
         refreshItems();
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(
+                        Duration.seconds(1),
+                        e -> {
+                            for (AuctionItem item : items) {
+                                item.updateTimeLeft();
+                            }
+                            itemTable.refresh();
+                        }
+                )
+        );
+
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
     }
 
     @FXML
@@ -68,7 +116,7 @@ public class BidController {
             statusLabel.setText("Gia dat phai cao hon gia hien tai.");
             return;
         }
-        if (!"ACTIVE".equals(selectedItem.getStatus())) {
+        if ("ENDED".equals(selectedItem.getStatus())) {
             statusLabel.setText("Phien dau gia nay da ket thuc.");
             return;
         }
@@ -78,11 +126,29 @@ public class BidController {
     }
 
     private void refreshItems() {
+
+
+        //log
+
+        System.out.println("REQUESTING ITEMS");
+
+
+
         client.sendRequest(MessageFactory.viewItemsRequest());
         statusLabel.setText("Dang tai danh sach san pham...");
     }
 
     private void handleServerMessage(String message) {
+
+        //log
+
+        System.out.println("AAAAAAAAAAAA BID CONTROLLER");
+
+        System.out.println("HOME RECEIVED = " + message);
+        System.out.println("BID CONTROLLER RECEIVED:");
+        System.out.println(message);
+
+
         try {
             JsonObject json = MessageFactory.fromJson(message, JsonObject.class);
             if (json.has("data") && json.get("data").isJsonArray()) {
@@ -101,21 +167,43 @@ public class BidController {
     }
 
     private void loadItems(JsonArray data) {
+
+        //log
+        System.out.println("LOAD ITEMS CALLED");
+        System.out.println("LOAD ITEMS: " + data.size());
+
         items.clear();
+
         for (JsonElement element : data) {
+
             JsonObject item = element.getAsJsonObject();
+
+            LocalDateTime endTime =
+                    LocalDateTime.parse(
+                            getString(
+                                    item,
+                                    "endTime",
+                                    LocalDateTime.now().toString()
+                            )
+                    );
+
             items.add(new AuctionItem(
-                    item.get("id").getAsInt(),
-                    item.get("name").getAsString(),
+                    getInt(item, "id", 0),
+                    getString(item, "name", ""),
                     getString(item, "type", ""),
-                    getDouble(item, "startPrice", item.get("price").getAsDouble()),
-                    item.get("price").getAsDouble(),
+                    getDouble(item, "startPrice", 0),
+                    getDouble(item, "currentPrice", 0),
                     getString(item, "winner", "-"),
                     getString(item, "seller", ""),
-                    getString(item, "status", "ACTIVE"),
-                    getInt(item, "timeLeft", 0)
+                    getString(item, "status", "OPEN"),
+                    endTime,
+                    getString(item, "imageBase64", "")
             ));
         }
+
+
+        //log
+        System.out.println("ITEMS SIZE = " + items.size());
     }
 
     private void handleRealtimeAction(JsonObject json) {
