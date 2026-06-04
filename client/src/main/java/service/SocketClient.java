@@ -20,8 +20,6 @@ public class SocketClient {
 
     public void connect(String host, int port, Consumer<String> listener) throws IOException {
 
-
-
         //log
 
         System.out.println("CONNECT CALLED");
@@ -30,9 +28,6 @@ public class SocketClient {
 
         System.out.println("CONNECTED TO SERVER");
 
-
-
-        socket = new Socket(host, port);
         out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         messageListener = listener;
