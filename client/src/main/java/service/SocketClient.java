@@ -19,6 +19,19 @@ public class SocketClient {
     private String role = "BIDDER";
 
     public void connect(String host, int port, Consumer<String> listener) throws IOException {
+
+
+
+        //log
+
+        System.out.println("CONNECT CALLED");
+
+        socket = new Socket(host, port);
+
+        System.out.println("CONNECTED TO SERVER");
+
+
+
         socket = new Socket(host, port);
         out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
@@ -72,12 +85,28 @@ public class SocketClient {
         Thread listenerThread = new Thread(() -> {
             try {
                 String response;
+
                 while (running && (response = in.readLine()) != null) {
+
+                    System.out.println("RAW SERVER => " + response);
+
                     Consumer<String> listener = messageListener;
+
                     if (listener != null) {
+
+                        //
+                        System.out.println("LISTENER FOUND");
+
                         listener.accept(response);
+                    } else {
+
+                        //
+                        System.out.println("LISTENER FOUND");
                     }
                 }
+
+
+
             } catch (IOException ex) {
                 if (running) {
                     System.err.println("Mat ket noi server: " + ex.getMessage());

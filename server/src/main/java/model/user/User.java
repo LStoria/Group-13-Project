@@ -10,18 +10,26 @@ public class User extends Entity {
     private String username;
     private String email;
     private String passwordHash;
-    private List<Role> roles = new ArrayList<>();
+    private String role;
 
-    public User(String username,String email, String passwordHash) {
+    public User(String username, String email, String passwordHash, String role) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.role = role;
     }
 
-    //Kiểm tra xem role này có phải là 1 trong những role của user không
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public boolean hasRole(String roleName) {
-        return roles.stream()
-                .anyMatch(r -> r.getName().equals(roleName));
+        return role != null
+                && role.equalsIgnoreCase(roleName);
     }
 
     public void setUsername(String username) {
@@ -46,14 +54,6 @@ public class User extends Entity {
 
     public String getPasswordHash() {
         return passwordHash;
-    }
-
-    public List<Role> getRoles() {
-        return new ArrayList<>(roles);
-    }
-
-    public void addRole(Role role) {
-        roles.add(role);
     }
 
 }

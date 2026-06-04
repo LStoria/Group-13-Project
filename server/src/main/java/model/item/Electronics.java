@@ -6,9 +6,9 @@ public class Electronics extends Item {
 
     private String brand;
 
-    public Electronics(String name, User seller, double startPrice, double currentPrice, String brand) {
+    public Electronics(String name, User seller, double startPrice, double currentPrice) {
         super(name, seller, startPrice, currentPrice);
-        this.brand = brand;
+        this.brand = "";
     }
 
     public String getBrand() {

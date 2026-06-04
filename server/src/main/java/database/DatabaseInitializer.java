@@ -26,7 +26,8 @@ public class DatabaseInitializer {
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username TEXT UNIQUE NOT NULL,
                     email TEXT NOT NULL,
-                    password_hash TEXT NOT NULL
+                    password_hash TEXT NOT NULL,
+                    role TEXT NOT NULL
                 )
             """);
 
@@ -66,8 +67,6 @@ public class DatabaseInitializer {
         } catch (SQLException e) {
             logger.error("Lỗi khi khởi tạo CSDL", e);
         }
-
-
 
     }
 

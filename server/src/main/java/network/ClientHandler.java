@@ -125,17 +125,18 @@ public class ClientHandler implements Runnable {
                 double bidAmount = request.get("amount").getAsDouble();
                 String username = request.get("user").getAsString();
 
-                if (AuctionManager.updateBid(itemId, bidAmount, username)) {
-                    // Lấy timeLeft hiện tại sau khi đã gia hạn (nếu có)
-                    int currentTimeLeft = AuctionManager.getItemTimeLeft(itemId);
+                if (AuctionManager.updateBid((long)itemId, bidAmount, username)) {
+
                     JsonObject update = new JsonObject();
+
                     update.addProperty("action", "UPDATE_PRICE");
                     update.addProperty("itemId", itemId);
                     update.addProperty("price", bidAmount);
                     update.addProperty("winner", username);
                     update.addProperty("bidder", username);
-                    update.addProperty("timeLeft", currentTimeLeft);
+
                     AuctionServer.broadcast(gson.toJson(update));
+
                     sendStatus("SUCCESS", "Đặt giá thành công!");
                 } else {
                     sendStatus("ERROR", "Giá đặt phải cao hơn giá hiện tại hoặc sản phẩm không tồn tại!");
