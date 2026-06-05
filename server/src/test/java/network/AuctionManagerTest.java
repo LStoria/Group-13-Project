@@ -61,7 +61,7 @@ class AuctionManagerTest {
         JsonObject response = AuctionManager.createItem("Test Watch", "Other", 100.0, "seller");
         int itemId = response.getAsJsonObject("item").get("id").getAsInt();
 
-        assertFalse(AuctionManager.updateBid(itemId, 90.0, "bidder"));
-        assertTrue(AuctionManager.updateBid(itemId, 120.0, "bidder"));
+        assertFalse(AuctionManager.updateBid((long)itemId, 90.0, "bidder"));
+        assertTrue(AuctionManager.updateBid((long)itemId, 120.0, "bidder"));
     }
 }
